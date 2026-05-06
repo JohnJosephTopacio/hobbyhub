@@ -25,7 +25,7 @@ app.use(express.json());
 app.use('/auth', authRouter);
 
 // Handle all errors that bubble up
-app.use((req, res, next, err) => {
+app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({message: 'Internal Error'});
 })
