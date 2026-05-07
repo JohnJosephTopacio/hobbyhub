@@ -27,7 +27,7 @@ export async function registerUser(req, res, next) {
     // check if email is already registered
     const existingEmails = await checkUserExistsByEmail(email);
     if (existingEmails.rowCount !== 0) {
-      return res.status(400).json({message: 'Email is already registered.'});
+      return res.status(409).json({message: 'Email is already registered.'});
     }
     
     // check if username already exists
@@ -60,7 +60,7 @@ export async function loginUser(req, res, next) {
     // check if the email is registered
     const existingEmail = await getUserByEmail(email);
     if (existingEmail.rowCount === 0) {
-      return res.status(400).json({ message: 'Invalid Email or Password.'});
+      return res.status(401).json({ message: 'Invalid Email or Password.'});
     } 
 
     const hashedPassword = existingEmail.rows[0].password;
@@ -69,7 +69,7 @@ export async function loginUser(req, res, next) {
     const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
     
     if (!isPasswordCorrect) {
-      return res.status(400).json({ message: 'Invalid Email or Password.'});
+      return res.status(401).json({ message: 'Invalid Email or Password.'});
     }
     
     // if all is well, the user is logged on - send back JWT Token
