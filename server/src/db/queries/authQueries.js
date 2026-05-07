@@ -16,3 +16,7 @@
   export function getUserByEmail(email) {
     return pool.query('SELECT id, password FROM users WHERE email=$1', [email]);
   }
+
+  export function getUserInfo(userId) {
+    return pool.query('SELECT username, email, created_at FROM users WHERE id=$1', [userId]);
+  }

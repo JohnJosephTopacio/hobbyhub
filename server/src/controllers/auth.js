@@ -2,7 +2,7 @@
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
-import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserByEmail } from '../db/queries/authQueries.js';
+import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserByEmail, getUserInfo } from '../db/queries/authQueries.js';
 
 export async function registerUser(req, res, next) {
   try {
@@ -86,6 +86,21 @@ export async function loginUser(req, res, next) {
       }
     );
     
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function getUserInformation (req, res, next) {
+  try {
+    const userId = req.user.userId;
+    const user = await getUserInfo(userId);
+
+    if (!user.rows[0]) {
+      return res.status(404).json({ message: 'User not found'});
+    }
+    
+    return res.status(200).json(user.rows[0]);
   } catch (err) {
     next(err);
   }

@@ -6,7 +6,6 @@ import express from 'express';
 import cors from 'cors';
 
 import authRouter from './routes/auth.js';
-import { authenticateToken } from './middleware/auth.js';
 
 const app = express(); 
 
