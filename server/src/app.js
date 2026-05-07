@@ -6,6 +6,7 @@ import express from 'express';
 import cors from 'cors';
 
 import authRouter from './routes/auth.js';
+import { errorHandler } from './middleware/error.js';
 
 const app = express(); 
 
@@ -25,10 +26,7 @@ app.use(express.json());
 app.use('/auth', authRouter);
 
 // Handle all errors that bubble up
-app.use((err, req, res, next) => {
-  console.error(err);
-  return res.status(500).json({message: 'Internal Error'});
-});
+app.use(errorHandler);
 
 const PORT = process.env.PORT || 8887;
 
