@@ -6,6 +6,7 @@ import express from 'express';
 import cors from 'cors';
 
 import authRouter from './routes/auth.js';
+import { authenticateToken } from './middleware/auth.js';
 
 const app = express(); 
 
@@ -16,7 +17,7 @@ const corsOptions = {
 // Middlewares
 
 // The browser can read the response as long as it's from the front-end vite server
-app.use(cors(corsOptions))
+app.use(cors(corsOptions));
 
 // Parse incoming requests to JSON
 app.use(express.json());
@@ -27,8 +28,8 @@ app.use('/auth', authRouter);
 // Handle all errors that bubble up
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).json({message: 'Internal Error'});
-})
+  return res.status(500).json({message: 'Internal Error'});
+});
 
 const PORT = process.env.PORT || 8887;
 
