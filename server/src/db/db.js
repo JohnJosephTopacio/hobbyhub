@@ -13,7 +13,7 @@ const testConnection = async () => {
     await pool.query('SELECT NOW()');
     console.log('Database reachable.')
   } catch (error) {
-    console.err('Database connection failed', error.message);
+    console.error('Database connection failed', error.message);
     process.exit(1);
   }
 };
