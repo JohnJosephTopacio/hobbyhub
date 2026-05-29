@@ -50,3 +50,6 @@ dist-ssr
 
 # API testing tool
 .rest
+
+# Testing file
+test.js
