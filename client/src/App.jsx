@@ -1,9 +1,13 @@
-import { useEffect } from 'react';
-import './App.css'
+import '@/App.css'
+import Nav from '@/components/Navbar/Navbar'
+import SignUpForm from '@/components/SignUpForm/SignUpForm'
 
 function App() {
   return (
-    <h1>test</h1>
+    <>
+      <Nav/>
+      <SignUpForm />
+    </>
   );
 }
 
