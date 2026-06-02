@@ -7,23 +7,31 @@ import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserB
 export async function registerUser(req, res, next) {
   try {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const { email, username, password,confirmationPassword } = req.body;
+    const { email, username, password } = req.body;
   
     // check if required register fields exist on the response body 
-    if ( !email || !username || !password || !confirmationPassword ) {
+    if ( !email || !username || !password ) {
       return res.status(400).json({message: 'All fields are required.'})
     }
 
     // check if email format is proper
     if (!regex.test(email)) {
-      return res.status(400).json({message: 'Wrong Email Format.'})
+      return res.status(400).json({message: 'Invalid Email Format.'})
     }
-    
-    // check if password matches confirmation password
-    if (!(password === confirmationPassword)) {
-      return res.status(400).json({message: 'Passwords do not match.'});
+
+    // check if username is proper
+    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
+    if (!usernameRegex.test(username)) {
+      return res.status(400).json({message: 'Username must be 6-16 characters. Starting with a letter. Only underscores are allowed as special characters.'});
     }
   
+    /* 
+    To be implemented in the future:
+    
+    check that @ exists and let the email verification step (confirmation email) do the real validation
+
+    */
+
     // check if email is already registered
     const existingEmails = await checkUserExistsByEmail(email);
     if (existingEmails.rowCount !== 0) {
@@ -33,16 +41,16 @@ export async function registerUser(req, res, next) {
     // check if username already exists
     const existingUsernames = await checkUserExistsByUsername(username);
     if (existingUsernames.rowCount !== 0) {
-      return res.status(400).json({message: 'Username already exists.'});
+      return res.status(409).json({message: 'Username already exists.'});
     }
   
     // hash the password 
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
+    const hashedPassword = await bcrypt.hash(password, 10)
   
     // create the user in the users table
     await insertUser(email, username, hashedPassword);
     res.status(201).json({message: 'User has been created'});
+
   } catch (err) {
     next(err);
   }
@@ -73,7 +81,6 @@ export async function loginUser(req, res, next) {
     }
     
     // if all is well, the user is logged on - send back JWT Token
-
     const token = jwt.sign({
       userId: existingEmail.rows[0].id,
       }, 
