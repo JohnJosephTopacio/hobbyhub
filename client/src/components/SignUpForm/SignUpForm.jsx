@@ -55,7 +55,7 @@ function SignUpForm () {
       setResultMessage(result.message);
 
     } catch (error) {
-      setResultMessage(error.message);
+      setResultMessage("Error. Please try again later.");
       console.error(error.message);
       return
     }
@@ -77,11 +77,7 @@ function SignUpForm () {
 
       <button type="submit">Submit</button>
 
-      {(resultMessage === '' ? '': <p className={isSuccess ? "success-message" : "error-message"}>{resultMessage}</p>) 
-
-             
-
-      }
+      {resultMessage && <p className={isSuccess ? "success-message" : "error-message"}>{resultMessage}</p>}
    
     </form>
   );
