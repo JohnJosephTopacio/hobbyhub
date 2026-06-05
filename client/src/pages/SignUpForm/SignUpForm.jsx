@@ -1,4 +1,4 @@
-import '@/components/SignUpForm/SignUpForm.css'
+import '@/pages/SignUpForm/SignUpForm.css'
 import { useState } from 'react'
 
 
