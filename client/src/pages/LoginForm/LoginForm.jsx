@@ -11,7 +11,9 @@ function LoginForm() {
   async function formHandler(e) {
     e.preventDefault();
 
-    const loginUrl = "http://localhost:9000/auth/login";
+    const backendServerUrl = import.meta.env.VITE_BACKEND_SERVER_URL  
+
+    const loginUrl = new URL("auth/login", backendServerUrl);
 
     try {
       const response = await fetch(loginUrl, {
@@ -32,7 +34,7 @@ function LoginForm() {
         setResultMessage(result.message);
         return;
       } 
-
+      
       setIsSuccess(true);
       setResultMessage('Successful Logon!');
 
