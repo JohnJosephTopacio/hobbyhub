@@ -81,15 +81,27 @@ export async function loginUser(req, res, next) {
     }
     
     // if all is well, the user is logged on - send back JWT Token
-    const token = jwt.sign({
-      userId: existingEmail.rows[0].id,
-      }, 
+    const token = jwt.sign(
+      { userId: existingEmail.rows[0].id,}, 
       process.env.JWT_SECRET,
-      { expiresIn: "1h" });
+      { expiresIn: '15m' }
+    );
 
-    return res.status(200).json({ 
+    return res.status(200)
+    .cookie(
+      'token', 
+      token, 
+      {
+        // the first number is how many minutes the expression equates to 
+        maxAge: 15 * 60 * 1000,
+        httpOnly: true,
+        sameSite: 'strict',
+        secure: process.env.NODE_ENV === 'production' 
+      }
+    )
+    .json(
+      { 
         message: 'User has logged in',
-        token,
       }
     );
     

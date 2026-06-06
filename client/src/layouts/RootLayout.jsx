@@ -4,7 +4,6 @@ import Nav from '@/components/Navbar/Navbar'
 export function RootLayout () {
   return (
     <>
-      Hello
       <Nav/>
       <Outlet/>
     </>
