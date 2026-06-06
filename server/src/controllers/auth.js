@@ -4,6 +4,9 @@ import jwt from 'jsonwebtoken';
 
 import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserByEmail, getUserInfo } from '../db/queries/authQueries.js';
 
+// token and cookie expiry minutes
+const expiryMinutes = 15;
+
 export async function registerUser(req, res, next) {
   try {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
@@ -84,7 +87,7 @@ export async function loginUser(req, res, next) {
     const token = jwt.sign(
       { userId: existingEmail.rows[0].id,}, 
       process.env.JWT_SECRET,
-      { expiresIn: '15m' }
+      { expiresIn: expiryMinutes * 60 }
     );
 
     return res.status(200)
@@ -93,7 +96,7 @@ export async function loginUser(req, res, next) {
       token, 
       {
         // the first number is how many minutes the expression equates to 
-        maxAge: 15 * 60 * 1000,
+        maxAge: expiryMinutes * 60 * 1000,
         httpOnly: true,
         sameSite: 'strict',
         secure: process.env.NODE_ENV === 'production' 
