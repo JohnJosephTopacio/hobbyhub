@@ -1,20 +1,23 @@
 import '@/pages/LoginForm/LoginForm.css'
+import { useNavigate } from 'react-router'
 import { useState } from 'react'
 
+const backendServerUrl = import.meta.env.VITE_BACKEND_SERVER_URL  
+// using URL constructor is better than concatenation because it handles both http://localhost and http://localhost/ - in case the environment variable changes. It also handles encoding or escaping automatically. 
+
+const loginUrl = new URL("auth/login", backendServerUrl);
 
 function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resultMessage, setResultMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(null);
+
+  const navigate = useNavigate();
+
 
   async function formHandler(e) {
     e.preventDefault();
-
-    const backendServerUrl = import.meta.env.VITE_BACKEND_SERVER_URL  
-
-    const loginUrl = new URL("auth/login", backendServerUrl);
-
     try {
       const response = await fetch(loginUrl, {
         method: "POST",
@@ -37,6 +40,8 @@ function LoginForm() {
       
       setIsSuccess(true);
       setResultMessage('Successful Logon!');
+
+      navigate('/home');
 
     } catch (error) {
       setResultMessage("Error. Please try again later.");
