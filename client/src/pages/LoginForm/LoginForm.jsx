@@ -44,6 +44,7 @@ function LoginForm() {
       navigate('/home');
 
     } catch (error) {
+      setIsSuccess(false);
       setResultMessage("Error. Please try again later.");
       console.error(error.message);
     }
