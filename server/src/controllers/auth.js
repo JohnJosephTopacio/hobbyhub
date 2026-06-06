@@ -36,14 +36,14 @@ export async function registerUser(req, res, next) {
     */
 
     // check if email is already registered
-    const existingEmails = await checkUserExistsByEmail(email);
-    if (existingEmails.rowCount !== 0) {
+    const emailRecord = await checkUserExistsByEmail(email);
+    if (emailRecord.rowCount !== 0) {
       return res.status(409).json({message: 'Email is already registered.'});
     }
     
     // check if username already exists
-    const existingUsernames = await checkUserExistsByUsername(username);
-    if (existingUsernames.rowCount !== 0) {
+    const usernameRecord = await checkUserExistsByUsername(username);
+    if (usernameRecord.rowCount !== 0) {
       return res.status(409).json({message: 'Username already exists.'});
     }
   
@@ -69,12 +69,12 @@ export async function loginUser(req, res, next) {
     }
 
     // check if the email is registered
-    const existingEmail = await getUserByEmail(email);
-    if (existingEmail.rowCount === 0) {
+    const userRecord = await getUserByEmail(email);
+    if (userRecord.rowCount === 0) {
       return res.status(401).json({ message: 'Invalid Email or Password.'});
     } 
 
-    const hashedPassword = existingEmail.rows[0].password;
+    const hashedPassword = userRecord.rows[0].password;
 
     // hash the incoming password and compare it to the hashed password in the database, if it does not match send an error
     const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
@@ -85,7 +85,7 @@ export async function loginUser(req, res, next) {
     
     // if all is well, the user is logged on - send back JWT Token
     const token = jwt.sign(
-      { userId: existingEmail.rows[0].id,}, 
+      { userId: userRecord.rows[0].id,}, 
       process.env.JWT_SECRET,
       { expiresIn: expiryMinutes * 60 }
     );
