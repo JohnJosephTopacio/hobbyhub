@@ -98,6 +98,7 @@ export async function loginUser(req, res, next) {
         // the first number is how many minutes the expression equates to 
         maxAge: expiryMinutes * 60 * 1000,
         httpOnly: true,
+        // this needs to be revisited in the deployment phase for cross-site requests
         sameSite: 'strict',
         secure: process.env.NODE_ENV === 'production' 
       }

@@ -4,6 +4,7 @@ import dotenv from 'dotenv/config';
 
 import express from 'express';
 import cors from 'cors';
+import cookieParser from 'cookie-parser'
 
 import authRouter from './routes/auth.js';
 import { errorHandler } from './middleware/error.js';
@@ -11,16 +12,19 @@ import { errorHandler } from './middleware/error.js';
 const app = express(); 
 
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: process.env.FRONTEND_SERVER_URL,
 };
 
-// Middlewares
+/* Middlewares */
 
 // The browser can read the response as long as it's from the front-end vite server
 app.use(cors(corsOptions));
 
 // Parse incoming requests to JSON
 app.use(express.json());
+
+// Parse the cookies in the incoming request
+app.use(cookieParser());
 
 // Routers
 app.use('/auth', authRouter);
