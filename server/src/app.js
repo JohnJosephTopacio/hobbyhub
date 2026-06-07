@@ -11,8 +11,10 @@ import { errorHandler } from './middleware/error.js';
 
 const app = express(); 
 
+// Credentials field must be set to true for Access-Control-Allow-Credentials to be attached to header
 const corsOptions = {
   origin: process.env.FRONTEND_SERVER_URL,
+  credentials: true
 };
 
 /* Middlewares */
