@@ -1,7 +1,7 @@
   import pool from '../db.js'
 
   export function checkUserExistsByEmail(email) {
-    // for efficiency, returns 1 instead of the whole row of data 
+    // For efficiency, returns 1 instead of the whole row of data 
     return pool.query('SELECT 1 FROM users WHERE email=$1', [email]);
   }
 

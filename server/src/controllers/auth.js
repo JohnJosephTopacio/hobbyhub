@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 
 import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserByEmail, getUserInfo } from '../db/queries/authQueries.js';
 
-// token and cookie expiry minutes
+// Token and cookie expiry minutes
 const expiryMinutes = 15;
 
 export async function registerUser(req, res, next) {
@@ -12,17 +12,17 @@ export async function registerUser(req, res, next) {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const { email, username, password } = req.body;
   
-    // check if required register fields exist on the response body 
+    // Check if required register fields exist on the response body 
     if ( !email || !username || !password ) {
       return res.status(400).json({message: 'All fields are required.'})
     }
 
-    // check if email format is proper
+    // Check if email format is proper
     if (!regex.test(email)) {
       return res.status(400).json({message: 'Invalid Email Format.'})
     }
 
-    // check if username is proper
+    // Check if username is proper
     const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
     if (!usernameRegex.test(username)) {
       return res.status(400).json({message: 'Username must be 6-16 characters. Starting with a letter. Only underscores are allowed as special characters.'});
@@ -35,22 +35,22 @@ export async function registerUser(req, res, next) {
 
     */
 
-    // check if email is already registered
+    // Check if email is already registered
     const emailRecord = await checkUserExistsByEmail(email);
     if (emailRecord.rowCount !== 0) {
       return res.status(409).json({message: 'Email is already registered.'});
     }
     
-    // check if username already exists
+    // Check if username already exists
     const usernameRecord = await checkUserExistsByUsername(username);
     if (usernameRecord.rowCount !== 0) {
       return res.status(409).json({message: 'Username already exists.'});
     }
   
-    // hash the password 
+    // Hash the password 
     const hashedPassword = await bcrypt.hash(password, 10)
   
-    // create the user in the users table
+    // Create the user in the users table
     await insertUser(email, username, hashedPassword);
     res.status(201).json({message: 'User has been created'});
 
@@ -63,12 +63,12 @@ export async function loginUser(req, res, next) {
   try {
     const { email, password } = req.body;
   
-    // check if required login fields exists
+    // Check if required login fields exists
     if (!email || !password) {
       return res.status(400).json({ message: 'All fields are required.'})
     }
 
-    // check if the email is registered
+    // Check if the email is registered
     const userRecord = await getUserByEmail(email);
     if (userRecord.rowCount === 0) {
       return res.status(401).json({ message: 'Invalid Email or Password.'});
@@ -76,14 +76,14 @@ export async function loginUser(req, res, next) {
 
     const hashedPassword = userRecord.rows[0].password;
 
-    // hash the incoming password and compare it to the hashed password in the database, if it does not match send an error
+    // Hash the incoming password and compare it to the hashed password in the database, if it does not match send an error
     const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
     
     if (!isPasswordCorrect) {
       return res.status(401).json({ message: 'Invalid Email or Password.'});
     }
     
-    // if all is well, the user is logged on - send back JWT Token
+    // If all is well, the user is logged on - send back JWT Token
     const token = jwt.sign(
       { userId: userRecord.rows[0].id,}, 
       process.env.JWT_SECRET,
@@ -95,10 +95,10 @@ export async function loginUser(req, res, next) {
       'token', 
       token, 
       {
-        // the first number is how many minutes the expression equates to 
+        // The first number is how many minutes the expression equates to 
         maxAge: expiryMinutes * 60 * 1000,
         httpOnly: true,
-        // this needs to be revisited in the deployment phase for cross-site requests
+        // This needs to be revisited in the deployment phase for cross-site requests
         sameSite: 'strict',
         secure: process.env.NODE_ENV === 'production' 
       }
