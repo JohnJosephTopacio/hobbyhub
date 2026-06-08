@@ -15,14 +15,15 @@ function LoginForm() {
 
   const navigate = useNavigate();
 
-
   async function formHandler(e) {
     e.preventDefault();
     try {
       const response = await fetch(loginUrl, {
         method: "POST",
+        credentials: 'include',
         headers: {
-          "Content-Type": "application/json"
+          "Content-Type": "application/json",
+
         },
         body: JSON.stringify({
           email,
