@@ -16,9 +16,13 @@ function Home () {
           method: "GET",
         });
 
-        if (!response.ok) {
+        if (response.status === 401) {
           navigate('/login');
           return;
+        }
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch user')
         }
 
         const result = await response.json();
@@ -28,7 +32,6 @@ function Home () {
       } finally {
         setIsLoading(false);
       }
-
     }
 
     fetchUserData();
@@ -37,7 +40,7 @@ function Home () {
   
   return (
     <>   
-      { isLoading ? <p>Loading</p> : <p>Hello user, {result.username}</p> }
+      { isLoading ? <p>Loading</p> : result ? <p>Hello user, {result.username}</p>: <p>Failed to fetch user.</p> }
     </>
    
   );
