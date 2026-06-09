@@ -1,17 +1,25 @@
   import jwt from 'jsonwebtoken';
+  import { NoTokenProvided, InvalidToken } from '../errors/index.js'
 
   export function authenticateToken(req, res, next) {
     const token = req.cookies.token;
-    
-    if (!token) {
-      return res.status(401).json({message: 'Unauthorized. No Token Provided.'});
-    }
-    
+  
     try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded;
+      if (!token) {
+        throw new NoTokenProvided();
+      }
+
+      const decoded = jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+        if (err) {
+          console.error('JWT.verify threw: ')
+          console.error(err);
+          throw new InvalidToken();
+        }
+        req.user = decoded;
+      });
+      
       next();
     } catch (err) {
-      return res.status(403).json({ message: 'Invalid or expired token.'});
+      return next(err);
     }
   }
