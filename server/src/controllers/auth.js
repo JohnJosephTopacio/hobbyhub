@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserByEmail, getUserInfo } from '../db/queries/authQueries.js';
+import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegistered, UsernameRegistered } from '../errors/index.js'
 
 // Token and cookie expiry minutes
 const expiryMinutes = 15;
@@ -14,18 +15,18 @@ export async function registerUser(req, res, next) {
   
     // Check if required register fields exist on the response body 
     if ( !email || !username || !password ) {
-      return res.status(400).json({message: 'All fields are required.'})
+      throw new MissingFields();
     }
 
     // Check if email format is proper
     if (!regex.test(email)) {
-      return res.status(400).json({message: 'Invalid Email Format.'})
+      throw new InvalidEmailFormat();
     }
 
     // Check if username is proper
     const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
     if (!usernameRegex.test(username)) {
-      return res.status(400).json({message: 'Username must be 6-16 characters. Starting with a letter. Only underscores are allowed as special characters.'});
+      throw new InvalidUsernameFormat();
     }
   
     /* 
@@ -38,13 +39,13 @@ export async function registerUser(req, res, next) {
     // Check if email is already registered
     const emailRecord = await checkUserExistsByEmail(email);
     if (emailRecord.rowCount !== 0) {
-      return res.status(409).json({message: 'Email is already registered.'});
+      throw new EmailRegistered();
     }
     
     // Check if username already exists
     const usernameRecord = await checkUserExistsByUsername(username);
     if (usernameRecord.rowCount !== 0) {
-      return res.status(409).json({message: 'Username already exists.'});
+      throw new UsernameRegistered();
     }
   
     // Hash the password 
@@ -65,13 +66,15 @@ export async function loginUser(req, res, next) {
   
     // Check if required login fields exists
     if (!email || !password) {
-      return res.status(400).json({ message: 'All fields are required.'})
+      return next(new AppError('missingFields', 400, 'All input fields are required', true));
     }
 
     // Check if the email is registered
     const userRecord = await getUserByEmail(email);
     if (userRecord.rowCount === 0) {
-      return res.status(401).json({ message: 'Invalid Email or Password.'});
+  
+      return next(new AppError('invalidCredentials', 401, ''))
+
     } 
 
     const hashedPassword = userRecord.rows[0].password;
@@ -120,7 +123,7 @@ export async function getUserInformation (req, res, next) {
     const user = await getUserInfo(userId);
 
     if (!user.rows[0]) {
-      return res.status(404).json({ message: 'User not found'});
+      return next(new AppError('userNotFound', 404, 'Could not fetch the user record', true))
     }
     
     return res.status(200).json(user.rows[0]);
