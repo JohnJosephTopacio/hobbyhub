@@ -55,7 +55,7 @@ export class InvalidEmailFormat extends AppError {
 export class InvalidUsernameFormat extends AppError {
   constructor() {
     super(
-      'Invalid Username Format.',
+      'Invalid username format.',
       400, 
       {
         expose: true,
@@ -68,7 +68,7 @@ export class InvalidUsernameFormat extends AppError {
 export class EmailRegistered extends AppError {
   constructor() {
     super (
-      'Email is already registered.',
+      'Email already registered.',
       409,
       {
         expose: true,
@@ -90,5 +90,48 @@ export class UsernameRegistered extends AppError {
     );
   }
 }
+
+export class IncorrectPassword extends AppError {
+  constructor() {
+    super (
+      'Incorrect password.',
+      401,
+      {
+        expose: false,
+        code: 'incorrectPassword'
+      }
+    );
+  }
+}
+
+export class UserNotFound extends AppError {
+  constructor() {
+    super (
+      'User not found.',
+      404,
+      {
+        expose: false,
+        code: 'userNotFound'
+      }
+    );
+  }
+}
+
+export class CouldNotFetchUser extends AppError {
+  constructor() {
+    super (
+      'Could not fetch the user.',
+      500,
+      {
+        expose: true,
+        code: 'fetchUserFailed'
+      }
+    );
+  }
+}
+
+
+
+
 
 

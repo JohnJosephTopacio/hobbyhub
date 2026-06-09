@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserByEmail, getUserInfo } from '../db/queries/authQueries.js';
-import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegistered, UsernameRegistered } from '../errors/index.js'
+import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegistered, UsernameRegistered, UserNotFound, IncorrectPassword, CouldNotFetchUser } from '../errors/index.js'
 
 // Token and cookie expiry minutes
 const expiryMinutes = 15;
@@ -66,15 +66,13 @@ export async function loginUser(req, res, next) {
   
     // Check if required login fields exists
     if (!email || !password) {
-      return next(new AppError('missingFields', 400, 'All input fields are required', true));
+      throw new MissingFields();
     }
 
     // Check if the email is registered
     const userRecord = await getUserByEmail(email);
     if (userRecord.rowCount === 0) {
-  
-      return next(new AppError('invalidCredentials', 401, ''))
-
+      throw new UserNotFound();
     } 
 
     const hashedPassword = userRecord.rows[0].password;
@@ -83,7 +81,7 @@ export async function loginUser(req, res, next) {
     const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
     
     if (!isPasswordCorrect) {
-      return res.status(401).json({ message: 'Invalid Email or Password.'});
+      throw new IncorrectPassword();
     }
     
     // If all is well, the user is logged on - send back JWT Token
@@ -120,15 +118,21 @@ export async function loginUser(req, res, next) {
 export async function getUserInformation (req, res, next) {
   try {
     const userId = req.user.userId;
-    const user = await getUserInfo(userId);
-
-    if (!user.rows[0]) {
-      return next(new AppError('userNotFound', 404, 'Could not fetch the user record', true))
+    let user;
+    try {
+      user = await getUserInfo(userId);
+    } catch (err) {
+      console.error(err);
+      throw new CouldNotFetchUser();
     }
     
+    if (!user.rows[0]) {
+      throw new UserNotFound();
+    }
+
     return res.status(200).json(user.rows[0]);
   } catch (err) {
-    next(err);
+    throw err; 
   }
 }
 
