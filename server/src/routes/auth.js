@@ -4,8 +4,7 @@ import { authenticateToken } from '../middleware/auth.js'
 
 const authRouter = Router();
 
-authRouter.get('/me', authenticateToken, getUserInformation)
-
+authRouter.get('/me', authenticateToken, getUserInformation);
 authRouter.post('/register', registerUser);
 authRouter.post('/login', loginUser);
 
