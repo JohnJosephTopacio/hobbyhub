@@ -69,7 +69,7 @@ export async function loginUser(req, res, next) {
       throw new MissingFields();
     }
 
-    // Check if the email is registered
+    // Check if the email is not registered
     const userRecord = await getUserByEmail(email);
     if (userRecord.rowCount === 0) {
       throw new UserNotFound();
