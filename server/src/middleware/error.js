@@ -17,7 +17,7 @@ export function errorHandler (err, req, res, next) {
       );
     } else {
       
-      if (err.code === 'incorrectPassword' || 'userNotFound') {
+      if (err.code === 'incorrectPassword' || err.code === 'userNotFound') {
         return res.status(statusCode).json({
           code: 'invalidUsernameOrPassword',
           message: 'Invalid username or password'
@@ -27,7 +27,7 @@ export function errorHandler (err, req, res, next) {
       return res.status(statusCode).json(
         {
           code: 'Internal Error.',
-          message: 'Internal Error.' 
+          message: 'internalError' 
         }
       );
     }

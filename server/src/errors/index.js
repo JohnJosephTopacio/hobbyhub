@@ -85,7 +85,7 @@ export class UsernameRegistered extends AppError {
       409,
       {
         expose: true,
-        code: 'userRegistered',
+        code: 'usernameRegistered',
       }
     );
   }
