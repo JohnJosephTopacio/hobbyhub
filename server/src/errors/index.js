@@ -98,7 +98,8 @@ export class IncorrectPassword extends AppError {
       401,
       {
         expose: false,
-        code: 'incorrectPassword'
+        code: 'incorrectPassword',
+        vagueError: true,
       }
     );
   }
@@ -111,7 +112,8 @@ export class UserNotFound extends AppError {
       404,
       {
         expose: false,
-        code: 'userNotFound'
+        code: 'userNotFound',
+        vagueError: true,
       }
     );
   }
@@ -123,7 +125,7 @@ export class CouldNotFetchUser extends AppError {
       'Could not fetch the user.',
       500,
       {
-        expose: true,
+        expose: false,
         code: 'fetchUserFailed'
       }
     );
