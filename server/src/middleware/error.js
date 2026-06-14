@@ -12,19 +12,21 @@ export function errorHandler (err, req, res, next) {
       return res.status(statusCode).json(
         {
           code: err.code,
-          message: err.message
+          message: err.protectedMessage || err.message
         }
       );
-    } else {
-      
-      if (err.code === 'incorrectPassword' || err.code === 'userNotFound') {
-        return res.status(statusCode).json({
-          code: 'invalidUsernameOrPassword',
-          message: 'Invalid username or password'
-        })
+    } else { 
+      console.log(err);
+      if (err.protectedMessage) {
+        return res.status(statusCode).json(
+          {
+            protectedCode: err.protectedCode,
+            protectedMessage: err.protectedMessage,
+          }
+        );
       }
 
-      return res.status(statusCode).json(
+      return res.status(statusCode).json( 
         {
           code: 'Internal Error.',
           message: 'internalError' 

@@ -99,7 +99,8 @@ export class IncorrectPassword extends AppError {
       {
         expose: false,
         code: 'incorrectPassword',
-        vagueError: true,
+        protectedCode: 'invalidUsernameOrPasswored',
+        protectedMessage: 'Invalid Username or Email.',
       }
     );
   }
@@ -113,7 +114,8 @@ export class UserNotFound extends AppError {
       {
         expose: false,
         code: 'userNotFound',
-        vagueError: true,
+        protectedCode: 'invalidUsernameOrPassword',
+        protectedMessage: 'Invalid Username or Email.',
       }
     );
   }

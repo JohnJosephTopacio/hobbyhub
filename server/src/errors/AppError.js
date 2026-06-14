@@ -6,6 +6,8 @@ class AppError extends Error {
     // If the property is undefined or null, default to false
     this.expose = options.expose ?? false;
     this.code = options.code;
+    this.protectedCode = options.protectedCode;
+    this.protectedMessage = options.protectedMessage;
 
     // Cleaner Stack Trace that starts where the error was thrown, not at the AppError constructor 
     Error.captureStackTrace(this, this.constructor);
