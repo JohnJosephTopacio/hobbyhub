@@ -6,13 +6,17 @@ export function errorHandler (err, req, res, next) {
     // .log and .error writes to different streams which just means they can be configured to go different places for different uses. Also they may differ in formatting
     console.log("Dev log: ")
     console.error(err);
-    return res.status(statusCode).json({message: err.message });
+    return res.status(statusCode).json(
+      {
+        message: err.message, 
+        stack: err.stack
+      });
   } else {
     if (err.expose === true) {
       return res.status(statusCode).json(
         {
           code: err.code,
-          message: err.protectedMessage || err.message
+          message: err.message
         }
       );
     } else { 
@@ -20,16 +24,16 @@ export function errorHandler (err, req, res, next) {
       if (err.protectedMessage) {
         return res.status(statusCode).json(
           {
-            protectedCode: err.protectedCode,
-            protectedMessage: err.protectedMessage,
+            code: err.protectedCode,
+            message: err.protectedMessage,
           }
         );
       }
 
       return res.status(statusCode).json( 
         {
-          code: 'Internal Error.',
-          message: 'internalError' 
+          code: 'internalError',
+          message: 'Internal Error.' 
         }
       );
     }
