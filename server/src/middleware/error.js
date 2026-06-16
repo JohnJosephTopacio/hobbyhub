@@ -21,6 +21,7 @@ export function errorHandler (err, req, res, next) {
       );
     } else { 
       console.log(err);
+      // if protected message and code exists, return it
       if (err.protectedMessage) {
         return res.status(statusCode).json(
           {
@@ -29,7 +30,7 @@ export function errorHandler (err, req, res, next) {
           }
         );
       }
-
+      // otherwise return a vague error
       return res.status(statusCode).json( 
         {
           code: 'internalError',
