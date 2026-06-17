@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 
 import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserByEmail, getUserInfo } from '../db/queries/authQueries.js';
-import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegistered, UsernameRegistered, UserNotFound, IncorrectPassword, CouldNotFetchUser } from '../errors/index.js'
+import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegistered, UsernameRegistered, EmailNotRegistered, IncorrectPassword, UserNotFound, CouldNotFetchUser } from '../errors/index.js'
 
 // Token and cookie expiry minutes
 const expiryMinutes = 15;
@@ -72,7 +72,7 @@ export async function loginUser(req, res, next) {
     // Check if the email is not registered
     const userRecord = await getUserByEmail(email);
     if (userRecord.rowCount === 0) {
-      throw new UserNotFound();
+      throw new EmailNotRegistered();
     } 
 
     const hashedPassword = userRecord.rows[0].password;
@@ -132,7 +132,7 @@ export async function getUserInformation (req, res, next) {
 
     return res.status(200).json(user.rows[0]);
   } catch (err) {
-    throw err; 
+    next(err); 
   }
 }
 
