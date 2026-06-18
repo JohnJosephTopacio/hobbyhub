@@ -37,6 +37,5 @@
 
   "include": ["src"],
   "exclude": ["node_modules", "dist"]
-
   // to add in the future: paths and baseURLs
 }

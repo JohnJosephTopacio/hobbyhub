@@ -1,6 +1,6 @@
 
 // Auto-Injects the environment variables from .env to the process when it runs
-import dotenv from 'dotenv/config';
+import 'dotenv/config';
 
 import express from 'express';
 import cors from 'cors';
