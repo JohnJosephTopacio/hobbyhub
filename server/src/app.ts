@@ -8,6 +8,7 @@ import cookieParser from 'cookie-parser'
 
 import authRouter from './routes/auth.js';
 import { errorHandler } from './middleware/error.js';
+import { env } from './config/env.js';
 
 const app = express(); 
 
