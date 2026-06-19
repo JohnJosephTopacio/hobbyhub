@@ -1,15 +1,6 @@
 import jwt from 'jsonwebtoken';
-import type { JwtPayload } from 'jsonwebtoken';
 import { EnvironmentVariableMissing, NoTokenProvided } from '../errors/index.js'
 import type { Request, Response, NextFunction } from 'express';
-
-declare global {
-  namespace Express {
-    interface Request {
-      user: string | JwtPayload | undefined
-    }
-  }
-}
 
 export function authenticateToken(req: Request, _res: Response, next: NextFunction) {
   const token = req.cookies.token;
