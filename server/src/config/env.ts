@@ -11,13 +11,14 @@ function validateEnv() {
     'FRONTEND_SERVER_URL'
   ]
 
+  // check for missing environment variable values 
   const missing = required.filter((key) => !process.env[key]);
   if (missing.length > 0) {
     throw new Error(`Missing environment variables: ${missing.join(', ')} `);
   }
-
   
   const NODE_ENV: string = process.env.NODE_ENV!;
+  // isNan is a valid value for a number type 
   const PORT: number = Number(process.env.PORT!);
   const DB: string = process.env.DB!;
   const DB_HOST: string = process.env.DB_HOST!;
@@ -33,7 +34,6 @@ function validateEnv() {
   if (isNaN(DB_PORT)) {
     throw new Error('The environment variable DB_PORT should be a number');
   }
-
 
   return {
     NODE_ENV,
