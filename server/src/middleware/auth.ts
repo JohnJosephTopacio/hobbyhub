@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
-import { EnvironmentVariableMissing, NoTokenProvided } from '../errors/index.js';
+import { NoTokenProvided } from '../errors/index.js';
 import type { Request, Response, NextFunction } from 'express';
 
 export function authenticateToken(req: Request, _res: Response, next: NextFunction) {
@@ -8,10 +8,6 @@ export function authenticateToken(req: Request, _res: Response, next: NextFuncti
   const secret = env.JWT_SECRET;
 
   try {
-    if (secret === undefined) {
-      throw new EnvironmentVariableMissing();
-    }
-    
     if (!token) {
       throw new NoTokenProvided();
     }
