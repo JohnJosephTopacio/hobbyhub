@@ -7,7 +7,11 @@
     // Environment Settings
     "module": "nodenext",
     "target": "esnext",
-    "types": ["node"],
+
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/types"
+    ],
 
     // Other Outputs
     "sourceMap": true,
@@ -29,7 +33,7 @@
     "verbatimModuleSyntax": true,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
+    "moduleDetection": "auto",
     "skipLibCheck": true,
 
     "esModuleInterop": true
