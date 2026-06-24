@@ -8,13 +8,14 @@ import cookieParser from 'cookie-parser'
 
 import authRouter from './routes/auth.js';
 import { errorHandler } from './middleware/error.js';
-import { env } from './config/env.js';
+
+import { env } from './config/env.js'
 
 const app = express(); 
 
 // Credentials field must be set to true for Access-Control-Allow-Credentials to be attached to header
 const corsOptions = {
-  origin: process.env.FRONTEND_SERVER_URL,
+  origin: env.FRONTEND_SERVER_URL,
   credentials: true
 };
 
@@ -35,7 +36,7 @@ app.use('/auth', authRouter);
 // Handle all errors that bubble up
 app.use(errorHandler);
 
-const PORT = process.env.PORT || 8887;
+const PORT = env.PORT || 8887;
 
 app.listen(PORT, () => {
   console.log(`Server started on PORT: ${PORT}`);
