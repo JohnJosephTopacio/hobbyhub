@@ -1,10 +1,11 @@
 import jwt from 'jsonwebtoken';
-import { EnvironmentVariableMissing, NoTokenProvided } from '../errors/index.js'
+import { env } from '../config/env.js';
+import { EnvironmentVariableMissing, NoTokenProvided } from '../errors/index.js';
 import type { Request, Response, NextFunction } from 'express';
 
 export function authenticateToken(req: Request, _res: Response, next: NextFunction) {
   const token = req.cookies.token;
-  const secret = process.env.JWT_SECRET;
+  const secret = env.JWT_SECRET;
 
   try {
     if (secret === undefined) {
