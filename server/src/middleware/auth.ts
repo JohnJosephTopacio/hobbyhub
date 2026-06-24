@@ -16,10 +16,9 @@ export function authenticateToken(req: Request, _res: Response, next: NextFuncti
     }
 
     const decoded = jwt.verify(token, secret);
-    req.user = decoded;
+    req.user = decoded as AuthenticationPayload;
     
     next();
-    
   } catch (err) {
     return next(err);
   }
