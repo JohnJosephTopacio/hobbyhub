@@ -5,10 +5,7 @@ export class NoTokenProvided extends AppError {
     super(
       'No token was provided.',
       401,
-      {
-        expose: false,
-        code: 'tokenDoesNotExist'
-      }
+      'noTokenProvided'
     );
   }
 }
@@ -18,10 +15,7 @@ export class InvalidToken extends AppError {
     super(
       'Invalid or expired token.',
       401,
-      {
-        expose: false,
-        code: 'invalidToken',
-      }
+      'invalidOrExpiredToken'
     );
   }
 }
@@ -31,10 +25,7 @@ export class MissingFields extends AppError {
     super(
       'Missing required input fields.',
       400,
-      {
-        expose: true,
-        code: 'missingFields'
-      }
+      'missingFields'
     );
   }
 }
@@ -44,10 +35,7 @@ export class InvalidEmailFormat extends AppError {
     super(
       'Invalid email format.',
       400,
-      {
-        expose: true,
-        code: 'invalidEmail'
-      }
+      'invalidEmailFormat'
     );
   }
 }
@@ -57,10 +45,7 @@ export class InvalidUsernameFormat extends AppError {
     super(
       'Invalid username format.',
       400, 
-      {
-        expose: true,
-        code: 'invalidUsername'
-      }
+      'invalidUsernameFormat'
     )
   }
 }
@@ -70,10 +55,7 @@ export class EmailRegistered extends AppError {
     super (
       'Email already registered.',
       409,
-      {
-        expose: true,
-        code: 'emailRegistered'
-      }
+      'emailRegistered'
     );
   }
 }
@@ -83,10 +65,7 @@ export class UsernameRegistered extends AppError {
     super (
       'Username already registered.',
       409,
-      {
-        expose: true,
-        code: 'usernameRegistered',
-      }
+      'usernameRegistered'
     );
   }
 }
@@ -94,14 +73,10 @@ export class UsernameRegistered extends AppError {
 export class IncorrectPassword extends AppError {
   constructor() {
     super (
-      'Incorrect password.',
+      'Invalid Email or Password',
       401,
-      {
-        expose: false,
-        code: 'incorrectPassword',
-        protectedCode: 'invalidEmailOrPassword',
-        protectedMessage: 'Invalid Email or Password.',
-      }
+      'invalidEmailOrPassword',
+      'Incorrect Password'
     );
   }
 }
@@ -109,16 +84,11 @@ export class IncorrectPassword extends AppError {
 export class EmailNotRegistered extends AppError {
   constructor() {
     super (
-      'No user account was found registered using email.',
+      'Invalid Email or Password',
       404,
-      {
-        expose: false,
-        code: 'emailNotRegistered',
-        protectedCode: 'invalidEmailOrPassword',
-        protectedMessage: 'Invalid Email or Password.',
-        protectedStatusCode: 401
-      }
-    )
+      'invalidEmailOrPassword',
+      'No user account was found registered using email.'
+    );
   }
 }
 
@@ -127,10 +97,7 @@ export class UserNotFound extends AppError {
     super ( 
       'User not found.',
       404,
-      {
-        expose: false,
-        code: 'userNotFound',
-      }
+      'userNotFound'
     );
   }
 }
@@ -140,10 +107,7 @@ export class CouldNotFetchUser extends AppError {
     super (
       'Could not fetch the user.',
       500,
-      {
-        expose: false,
-        code: 'fetchUserFailed'
-      }
+      'fetchUserFailed'
     );
   }
 }
@@ -151,12 +115,10 @@ export class CouldNotFetchUser extends AppError {
 export class EnvironmentVariableMissing extends AppError {
   constructor() {
     super (
-      'Environment variable is missing.',
+      'Internal Error.',
       500,
-      {
-        expose: false,
-        code: 'environmentVariableMissing'
-      }
+      'internalError',
+      'Environment variable is Missing'
     )
   }
 }
