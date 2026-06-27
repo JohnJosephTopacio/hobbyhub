@@ -1,80 +1,86 @@
 import AppError from '../errors/AppError.js'
 import type { Request, Response, NextFunction } from 'express';
 
-/* things to add: 
-  Production Logger
+/* Things to add: 
+  Production Logger (Look into Winston)
   Request Context / Unique Request ID generation
   Error Monitoring
 */ 
 
+interface ResponseToClient {
+  message: string;
+  statusCode: number;
+  code: string;
+}
+
 export function errorHandler (err: Error, _req: Request, res: Response, _next: NextFunction) {
-  // if err is a standard Error object
-  if (!(err instanceof AppError)) {
-    let statusCode = 500;
+  let response: ResponseToClient;
 
-    if ('status' in err) {
-      if (typeof err.status === 'number'){
-        statusCode = err.status;
-      } 
-    }
-
-    if ('statusCode' in err) {
-      if (typeof err.statusCode === 'number'){
-        statusCode = err.statusCode;
-      } 
-    }
-
-    console.error(err);
-    console.error('Status: ' + statusCode);
-    return res.status(statusCode).json(
-      {
-        code: 'internalError',
-        message: 'Internal error.'
-      }
-    )
-  }
-
+  // If in development
   if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "development") {
-    // .log and .error writes to different streams which just means they can be configured to go different places for different uses. Also they may differ in formatting
-    const statusCode = err.statusCode;
+    
+    // Log the error object
     console.error(err);
-    console.error('Status: ' + statusCode);
-    return res.status(statusCode).json(
-      {
-        message: err.message, 
-        stack: err.stack,
-        statusCode,
-        code: err.code,
-      });
+    console.error(err.stack)
+
+    // If AppError
+    if (err instanceof AppError) {
+      response = {
+        message: err.internal?.message || err.message, 
+        statusCode: err.statusCode,
+        code: err.code
+      }
+
+      return res.status(err.statusCode).json(response);
+    } 
+    // If standard Error or others
+    let statusCode = 500;
+    if ('status' in err && typeof err.status === 'number') {
+      statusCode = err.status;
+    }
+
+    if ('statusCode' in err && typeof err.statusCode === 'number') {
+      statusCode = err.statusCode;
+    }
+
+    response = {
+      message: err.message,
+      statusCode: statusCode, 
+      code: 'internalError'
+    }
+
+    return res.status(statusCode).json(response);
   } 
   
+  // If in production
   if (process.env.NODE_ENV === 'production') { 
-    const statusCode = err.statusCode;
-    console.error(err);
-    console.error('Status: ' + statusCode);
-
-    if (err.expose === true) {
-      return res.status(statusCode).json(
-        {
-          code: err.code,
-          message: err.message
-        }
-      );
-
-    } else { 
-      // if protected message, code, and statusCode exists, use those values 
-      if (err.internal.code && err.internal.message) {
-        return res.status(err.internal.statusCode || statusCode).json(
-          {
-            code: err.internal.code,
-            message: err.internal.message,
-          }
-        );
+    // Return custom error with non internal message
+    if (err instanceof AppError) {
+      response = {
+        message: err.message, 
+        statusCode: err.statusCode,
+        code: err.code
       }
+
+      return res.status(err.statusCode).json(response);
+    } 
+
+    response = {
+      message: 'Internal Error.',
+      statusCode: 500,
+      code: 'internalError'
     }
+
+    // If error is upstream, respond with a vague error
+    return res.status(500).json(response);
   }
 
-  console.error('Unknown Error')
-  return res.status(500).json('Unknown error');
+  response = {
+    message: 'Internal Error.',
+    statusCode: 500,
+    code: 'internalError'
+  } 
+  return res.status(500).json(response);
 }
+
 
