@@ -1,5 +1,6 @@
 import AppError from '../errors/AppError.js'
 import type { Request, Response, NextFunction } from 'express';
+import { env } from '../config/env.js'
 
 /* Things to add: 
   Production Logger (Look into Winston)
@@ -17,7 +18,7 @@ export function errorHandler (err: Error, _req: Request, res: Response, _next: N
   let response: ResponseToClient;
 
   // If in development
-  if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "development") {
+  if (env.NODE_ENV === "dev" || env.NODE_ENV === "development") {
     
     // Log the error object
     console.error(err);
@@ -53,7 +54,7 @@ export function errorHandler (err: Error, _req: Request, res: Response, _next: N
   } 
   
   // If in production
-  if (process.env.NODE_ENV === 'production') { 
+  if (env.NODE_ENV === 'production') { 
     // Return custom error with non internal message
     if (err instanceof AppError) {
       response = {
