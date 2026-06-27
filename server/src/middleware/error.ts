@@ -1,17 +1,29 @@
 import AppError from '../errors/AppError.js'
+import type { Request, Response, NextFunction } from 'express';
 
 /* things to add: 
   Production Logger
   Request Context / Unique Request ID generation
   Error Monitoring
-*/
+*/ 
 
-export function errorHandler (err, req, res, next) {
-
-  // .status and .statusCode is the convention for custom errors
-  const statusCode = err.status || err.statusCode || 500; 
-
+export function errorHandler (err: Error, _req: Request, res: Response, _next: NextFunction) {
+  // if err is a standard Error object
   if (!(err instanceof AppError)) {
+    let statusCode = 500;
+
+    if ('status' in err) {
+      if (typeof err.status === 'number'){
+        statusCode = err.status;
+      } 
+    }
+
+    if ('statusCode' in err) {
+      if (typeof err.statusCode === 'number'){
+        statusCode = err.statusCode;
+      } 
+    }
+
     console.error(err);
     console.error('Status: ' + statusCode);
     return res.status(statusCode).json(
@@ -24,6 +36,7 @@ export function errorHandler (err, req, res, next) {
 
   if (process.env.NODE_ENV === "dev" || process.env.NODE_ENV === "development") {
     // .log and .error writes to different streams which just means they can be configured to go different places for different uses. Also they may differ in formatting
+    const statusCode = err.statusCode;
     console.error(err);
     console.error('Status: ' + statusCode);
     return res.status(statusCode).json(
@@ -36,6 +49,7 @@ export function errorHandler (err, req, res, next) {
   } 
   
   if (process.env.NODE_ENV === 'production') { 
+    const statusCode = err.statusCode;
     console.error(err);
     console.error('Status: ' + statusCode);
 
@@ -49,23 +63,18 @@ export function errorHandler (err, req, res, next) {
 
     } else { 
       // if protected message, code, and statusCode exists, use those values 
-      if (err.protected.code && err.protected.message) {
-        return res.status(err.protected.statusCode || statusCode).json(
+      if (err.internal.code && err.internal.message) {
+        return res.status(err.internal.statusCode || statusCode).json(
           {
-            code: err.protected.code,
-            message: err.protected.message,
+            code: err.internal.code,
+            message: err.internal.message,
           }
         );
       }
     }
-
   }
-  // otherwise return a vague error 
-  return res.status(statusCode).json( 
-    {
-      code: 'internalError',
-      message: 'Internal Error.' 
-    }
-  );
+
+  console.error('Unknown Error')
+  return res.status(500).json('Unknown error');
 }
 

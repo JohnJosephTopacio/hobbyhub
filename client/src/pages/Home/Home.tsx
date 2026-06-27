@@ -3,8 +3,13 @@ import { useState, useEffect } from 'react'
 
 const getMeUrl = new URL("auth/me", import.meta.env.VITE_BACKEND_SERVER_URL);
 
+interface Result {
+  username?: string
+}
+
 function Home () {  
-  const [result, setResult] = useState(null);
+  // generic type parameters are used to derive the return type
+  const [result, setResult] = useState<Result | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -28,7 +33,9 @@ function Home () {
         const result = await response.json();
         setResult(result);
       } catch (error) {
-        console.error(error.message);
+        if (error instanceof Error) {
+          console.error(error.message);
+        }
       } finally {
         setIsLoading(false);
       }

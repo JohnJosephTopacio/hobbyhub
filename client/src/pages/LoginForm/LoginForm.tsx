@@ -11,11 +11,11 @@ function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [resultMessage, setResultMessage] = useState('');
-  const [isSuccess, setIsSuccess] = useState(null);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const navigate = useNavigate();
 
-  async function formHandler(e) {
+  async function formHandler(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
     try {
       const response = await fetch(loginUrl, {
@@ -45,9 +45,13 @@ function LoginForm() {
       navigate('/home');
 
     } catch (error) {
-      setIsSuccess(false);
-      setResultMessage("Error. Please try again later.");
-      console.error(error.message);
+      if (error instanceof Error) {
+        setIsSuccess(false);
+        setResultMessage("Error. Please try again later.");
+        console.error(error.message);
+      } else {
+        console.log(error);
+      }
     }
   }
 

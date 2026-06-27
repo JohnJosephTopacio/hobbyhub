@@ -148,6 +148,18 @@ export class CouldNotFetchUser extends AppError {
   }
 }
 
+export class EnvironmentVariableMissing extends AppError {
+  constructor() {
+    super (
+      'Environment variable is missing.',
+      500,
+      {
+        expose: false,
+        code: 'environmentVariableMissing'
+      }
+    )
+  }
+}
 
 
 

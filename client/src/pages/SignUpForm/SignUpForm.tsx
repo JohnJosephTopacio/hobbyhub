@@ -10,7 +10,7 @@ function SignUpForm () {
   const [resultMessage, setResultMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   
-  async function formHandler(e) {
+  async function formHandler(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
 
     // Validate the username using regex
@@ -55,10 +55,15 @@ function SignUpForm () {
       setResultMessage(result.message);
 
     } catch (error) {
-      setIsSuccess(false);
-      setResultMessage("Error. Please try again later.");
-      console.error(error.message);
-      return
+      if (error instanceof Error) {
+        setIsSuccess(false);
+        setResultMessage("Error. Please try again later.");
+        console.error(error.message);
+        return;
+      }
+
+      console.log(error);
+      return;
     }
   }
 

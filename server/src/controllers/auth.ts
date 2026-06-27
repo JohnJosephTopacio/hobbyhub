@@ -1,14 +1,14 @@
-
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-
+import type { Request, Response, NextFunction } from 'express';
+import { env } from '../config/env.js'
 import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserByEmail, getUserInfo } from '../db/queries/authQueries.js';
 import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegistered, UsernameRegistered, EmailNotRegistered, IncorrectPassword, UserNotFound, CouldNotFetchUser } from '../errors/index.js'
 
 // Token and cookie expiry minutes
 const expiryMinutes = 15;
 
-export async function registerUser(req, res, next) {
+export async function registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     const { email, username, password } = req.body;
@@ -60,22 +60,28 @@ export async function registerUser(req, res, next) {
   }
 }
 
-export async function loginUser(req, res, next) {
+export async function loginUser(req: Request, res: Response, next: NextFunction){
   try {
-    const { email, password } = req.body;
+    const { email , password  } = req.body;
   
     // Check if required login fields exists
     if (!email || !password) {
       throw new MissingFields();
     }
 
-    // Check if the email is not registered
+    if (typeof email !== 'string'|| typeof password !== 'string' ) {
+      throw new Error('Invalid input formats.')
+    }
+
     const userRecord = await getUserByEmail(email);
-    if (userRecord.rowCount === 0) {
+    
+    // Check if the email is not registered
+    if (!userRecord.rowCount) {
       throw new EmailNotRegistered();
     } 
 
-    const hashedPassword = userRecord.rows[0].password;
+    // if rowCount is not 0 or null, .rows[0] must exist
+    const hashedPassword = userRecord.rows[0]!.password;
 
     // Hash the incoming password and compare it to the hashed password in the database, if it does not match send an error
     const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
@@ -86,12 +92,12 @@ export async function loginUser(req, res, next) {
     
     // If all is well, the user is logged on - send back JWT Token
     const token = jwt.sign(
-      { userId: userRecord.rows[0].id,}, 
-      process.env.JWT_SECRET,
+      { userId: userRecord.rows[0]!.id,}, 
+      env.JWT_SECRET,
       { expiresIn: expiryMinutes * 60 }
     );
 
-    return res.status(200)
+    res.status(200)
     .cookie(
       'token', 
       token, 
@@ -115,9 +121,13 @@ export async function loginUser(req, res, next) {
   }
 }
 
-export async function getUserInformation (req, res, next) {
+export async function getUserInformation (req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = req.user.userId;
+    if (!req.user) {
+      throw Error('Missing req.user object.');
+    }
+
+    const userId: number  = req.user.userId;
     let user;
     try {
       user = await getUserInfo(userId);
@@ -130,7 +140,7 @@ export async function getUserInformation (req, res, next) {
       throw new UserNotFound();
     }
 
-    return res.status(200).json(user.rows[0]);
+    res.status(200).json(user.rows[0]);
   } catch (err) {
     next(err); 
   }
