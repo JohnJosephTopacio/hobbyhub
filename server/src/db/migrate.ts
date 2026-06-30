@@ -4,6 +4,8 @@ import { resolve } from 'node:path'
 import pool from './db.js';
 import path from 'node:path';
 
+console.log('migrate start')
+
 const migrationPath = resolve(import.meta.dirname,'migrations');
 
 async function getMigrationFileNames() {  
