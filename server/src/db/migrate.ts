@@ -23,8 +23,10 @@ if (files.length === 0) {
 }
 
 // get the paths of files in the migrations folder except for seed.sql
-const migrationFiles = files.sort() // it's important the script runs in order
+const migrationFiles = files // it's important the script runs in order
 ?.filter(file => file !== 'seed.sql')
+// filter first before sort for efficiency
+.sort()
 .map(file => resolve(migrationPath, file));
 
 for (const file of migrationFiles) {
