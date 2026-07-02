@@ -3,7 +3,8 @@ CREATE TABLE IF NOT EXISTS hobby_tags (
   tag VARCHAR(30) NOT NULL,
   category_id INT NOT NULL,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  CONSTRAINT fk_tags_category FOREIGN KEY(category_id) 
-  REFERENCES hobby_categories(id),
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  CONSTRAINT fk_hobby_tags_category FOREIGN KEY(category_id) 
+  REFERENCES hobby_categories(id) ON DELETE RESTRICT,
   CONSTRAINT unique_tag_in_category UNIQUE(tag, category_id)
 );
