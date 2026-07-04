@@ -1,8 +1,8 @@
 CREATE TABLE IF NOT EXISTS profiles (
   id INT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
   user_id INT NOT NULL UNIQUE,
-  avatar_URL TEXT,
-  cover_URL TEXT,
+  avatar_url TEXT,
+  cover_url TEXT,
   bio TEXT,
   private BOOLEAN NOT NULL DEFAULT false,
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
