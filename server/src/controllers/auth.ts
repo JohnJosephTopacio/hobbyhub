@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { Request, Response, NextFunction } from 'express';
 import { env } from '../config/env.js'
-import { checkUserExistsByEmail, checkUserExistsByUsername, insertUser, getUserByEmail, getUserInfo } from '../db/queries/authQueries.js';
+import { checkUserExistsByEmail, checkUserExistsByUsername, insertUserAndCreateProfile, getUserByEmail, getUserInfo} from '../db/queries/authQueries.js';
 import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegistered, UsernameRegistered, EmailNotRegistered, IncorrectPassword, UserNotFound, CouldNotFetchUser } from '../errors/index.js'
 
 // Token and cookie expiry minutes
@@ -52,7 +52,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
     const hashedPassword = await bcrypt.hash(password, 10)
   
     // Create the user in the users table
-    await insertUser(email, username, hashedPassword);
+    await insertUserAndCreateProfile(email, username, hashedPassword);
     res.status(201).json({message: 'User has been created'});
 
   } catch (err) {

@@ -20,8 +20,32 @@
     return pool.query('SELECT 1 FROM users WHERE username=$1', [username]); 
   }
 
-  export function insertUser(email: string, username: string, hashedPassword: string) {
-    return pool.query('INSERT INTO users (email, username, password) VALUES ($1, $2, $3)', [email, username, hashedPassword]);
+  export async function insertUserAndCreateProfile(email: string, username: string, hashedPassword: string) {
+    const client = await pool.connect();
+    try {
+      await client.query('BEGIN')
+      const userRecord = await client.query(
+      `
+        INSERT INTO users(email, username, password) 
+        VALUES ($1, $2, $3) RETURNING id;
+      `
+      ,[email, username, hashedPassword]);
+      await client.query(
+      `
+        INSERT INTO profiles(user_id) 
+        VALUES ($1);
+      `
+      ,[userRecord.rows[0].id]);
+      await client.query('COMMIT');
+      return userRecord;
+    } catch (error) {
+      await client.query('ROLLBACK');
+      throw error;
+    } finally {
+      if (client) {
+        client.release();
+      }
+    }
   } 
 
   export function getUserByEmail(email: string) {
