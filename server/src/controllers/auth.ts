@@ -6,7 +6,8 @@ import { checkUserExistsByEmail, checkUserExistsByUsername, insertUserAndCreateP
 import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegistered, UsernameRegistered, EmailNotRegistered, IncorrectPassword, UserNotFound, CouldNotFetchUser } from '../errors/index.js'
 
 // Token and cookie expiry minutes
-const expiryMinutes = 15;
+const expiryDays = 15;
+const expiryMinutes = 10;
 
 export async function registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -91,19 +92,25 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
     }
     
     // If all is well, the user is logged on - send back JWT Token
-    const token = jwt.sign(
+    const refreshToken = jwt.sign(
       { userId: userRecord.rows[0]!.id,}, 
-      env.JWT_SECRET,
-      { expiresIn: expiryMinutes * 60 }
+      env.JWT_REFRESH_SECRET,
+      { expiresIn: '15d' }
+    );
+
+    const accessToken = jwt.sign(
+      { userId: userRecord.rows[0]!.id,}, 
+      env.JWT_REFRESH_SECRET,
+      { expiresIn: expiryMinutes * 1000 * 60 }
     );
 
     res.status(200)
     .cookie(
       'token', 
-      token, 
+      refreshToken, 
       {
         // The first number is how many minutes the expression equates to 
-        maxAge: expiryMinutes * 60 * 1000,
+        maxAge: expiryDays * 1000 * 60 * 60 * 24,
         httpOnly: true,
         // This needs to be revisited in the deployment phase for cross-site requests
         sameSite: 'strict',
@@ -113,6 +120,7 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
     .json(
       { 
         message: 'User has logged in',
+        token: accessToken
       }
     );
     
