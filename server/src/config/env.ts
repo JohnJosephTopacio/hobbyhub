@@ -7,7 +7,7 @@ function validateEnv() {
     'DB_USER',
     'DB_PASSWORD',
     'DB_PORT',
-    'JWT_ACESS_SECRET',
+    'JWT_ACCESS_SECRET',
     'JWT_REFRESH_SECRET',
     'FRONTEND_SERVER_URL'
   ]
