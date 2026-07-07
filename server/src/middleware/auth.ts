@@ -5,7 +5,7 @@ import type { Request, Response, NextFunction } from 'express';
 
 export function authenticateToken(req: Request, _res: Response, next: NextFunction) {
   const token = req.cookies.token;
-  const secret = env.JWT_SECRET;
+  const secret = env.JWT_ACCESS_SECRET;
 
   try {
     if (!token) {
