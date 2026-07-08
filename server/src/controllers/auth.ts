@@ -93,14 +93,14 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
     
     // If all is well, the user is logged on - send back JWT Token
     const refreshToken = jwt.sign(
-      { userId: userRecord.rows[0]!.id,}, 
+      { sub: userRecord.rows[0]!.id }, 
       env.JWT_REFRESH_SECRET,
       { expiresIn: '15d' }
     );
 
     const accessToken = jwt.sign(
-      { userId: userRecord.rows[0]!.id,}, 
-      env.JWT_REFRESH_SECRET,
+      { sub: userRecord.rows[0]!.id,}, 
+      env.JWT_ACCESS_SECRET,
       { expiresIn: expiryMinutes * 1000 * 60 }
     );
 
@@ -120,7 +120,7 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
     .json(
       { 
         message: 'User has logged in',
-        token: accessToken
+        accessToken: accessToken
       }
     );
     
@@ -135,7 +135,7 @@ export async function getUserInformation (req: Request, res: Response, next: Nex
       throw Error('Missing req.user object.');
     }
 
-    const userId: number  = req.user.userId;
+    const userId: number  = Number(req.user.sub);
     let user;
     try {
       user = await getUserInfo(userId);
