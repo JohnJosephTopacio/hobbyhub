@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router'
 import { useState, useEffect } from 'react'
+import { useAuth } from '@/context/AuthContext';
 
 const getMeUrl = new URL("auth/me", import.meta.env.VITE_BACKEND_SERVER_URL);
 
@@ -12,13 +13,17 @@ function Home () {
   const [result, setResult] = useState<Result | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  const auth = useAuth();
+  const accessToken = auth.accessToken;
 
-  useEffect(()=> {
+  useEffect(()=> {  
     async function fetchUserData() {
+      console.log(`Access token ${accessToken}`)
       try {
         const response = await fetch(getMeUrl, {
           credentials: "include",
           method: "GET",
+          headers: {Authorization: `Bearer ${accessToken}`}
         });
 
         if (response.status === 401) {

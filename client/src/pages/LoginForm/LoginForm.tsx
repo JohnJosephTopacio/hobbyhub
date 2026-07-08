@@ -1,6 +1,7 @@
 import '@/pages/LoginForm/LoginForm.css'
 import { useNavigate } from 'react-router'
 import { useState } from 'react'
+import { useAuth } from '@/context/AuthContext';
 
 const backendServerUrl = import.meta.env.VITE_BACKEND_SERVER_URL  
 // using URL constructor is better than concatenation because it handles both http://localhost and http://localhost/ - in case the environment variable changes. It also handles encoding or escaping automatically. 
@@ -14,6 +15,9 @@ function LoginForm() {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const navigate = useNavigate();
+
+  const auth = useAuth();
+  const { setAccessToken } = auth;
 
   async function formHandler(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -32,17 +36,20 @@ function LoginForm() {
       });
 
       const result = await response.json();
-
+  
       if (!response.ok) {
         setIsSuccess(false);
         setResultMessage(result.message);
         return;
       } 
-      
+
+      const accessToken = result.accessToken;
+      setAccessToken(accessToken);
+
       setIsSuccess(true);
       setResultMessage('Successful Logon!');
 
-      navigate('/home');
+      navigate('/home', { state: { accessToken } });
 
     } catch (error) {
       if (error instanceof Error) {
