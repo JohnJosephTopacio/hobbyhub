@@ -11,7 +11,7 @@ if (!import.meta.env.VITE_BACKEND_SERVER_URL) {
 
 const root = document.getElementById('root');
 if (root === null) {
-  throw new Error('Root element does not exits');
+  throw new Error('Root element does not exist');
 }
 
 createRoot(root).render(
