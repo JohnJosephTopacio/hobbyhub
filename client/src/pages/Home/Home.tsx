@@ -18,7 +18,6 @@ function Home () {
 
   useEffect(()=> {  
     async function fetchUserData() {
-      console.log(`Access token ${accessToken}`)
       try {
         const response = await fetch(getMeUrl, {
           credentials: "include",
