@@ -114,6 +114,7 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
         // This needs to be revisited in the deployment phase for cross-site requests
         sameSite: 'strict',
         secure: env.NODE_ENV === 'production',
+        path: '/auth/refresh'
       }
     )
     .json(
