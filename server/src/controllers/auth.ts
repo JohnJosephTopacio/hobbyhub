@@ -7,7 +7,6 @@ import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegister
 
 // Token and cookie expiry minutes
 const expiryDays = 15;
-const expiryMinutes = 10;
 
 export async function registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
@@ -101,7 +100,7 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
     const accessToken = jwt.sign(
       { sub: userRecord.rows[0]!.id,}, 
       env.JWT_ACCESS_SECRET,
-      { expiresIn: expiryMinutes * 1000 * 60 }
+      { expiresIn: '5m' }
     );
 
     res.status(200)
@@ -114,7 +113,7 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
         httpOnly: true,
         // This needs to be revisited in the deployment phase for cross-site requests
         sameSite: 'strict',
-        secure: env.NODE_ENV === 'production' 
+        secure: env.NODE_ENV === 'production',
       }
     )
     .json(
