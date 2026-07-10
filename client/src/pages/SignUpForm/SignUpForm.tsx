@@ -1,6 +1,7 @@
   import '@/pages/SignUpForm/SignUpForm.css'
   import { useState } from 'react'
   import { instance, isAxiosError } from '@/utils/axiosInstance' 
+  import { useNavigate } from 'react-router'
 
   interface registerResponse {
     message: string
@@ -13,9 +14,14 @@
     const [confirmationPassword, setConfirmationPassword] = useState('');
     const [resultMessage, setResultMessage] = useState('');
     const [isSuccess, setIsSuccess] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
+    const navigate = useNavigate();
 
     async function formHandler(e: React.SubmitEvent<HTMLFormElement>) {
       e.preventDefault();
+      if (isLoading) {
+        return;
+      }
 
       // Validate the username using regex
       const regex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
@@ -32,15 +38,24 @@
         return;
       }
 
+      setIsLoading(true);
       try {
-      const response = await instance
+        const response = await instance
         .post<registerResponse>("auth/register", {
           email,
           username,
           password
         })
         setIsSuccess(true);
-        setResultMessage(response.data.message);
+        setEmail('');
+        setUsername('');
+        setPassword('');
+        setConfirmationPassword('');
+        setResultMessage(response.data.message + ' Redirecting to login...');
+        setTimeout(() => {
+          navigate('/login')
+        }, 1500);
+        
       } catch (error) {
         setIsSuccess(false);
         if (isAxiosError(error)) {
@@ -54,6 +69,8 @@
         } else {
           setResultMessage('Unexpected Error.');
         }
+      } finally {
+        setIsLoading(false);
       }
     }
 
@@ -71,10 +88,9 @@
         <label htmlFor="confirmation-password">Confirm Password: </label>
         <input type="password" placeholder="Confirm Password" name="confirmationPassword" id="confirmation-password" value={confirmationPassword} onChange={(e) => {setConfirmationPassword(e.target.value)}}/>
 
-        <button type="submit">Submit</button>
+        <button type="submit" disabled={isLoading}>Submit</button>
 
         {resultMessage && <p className={isSuccess ? "success-message" : "error-message"}>{resultMessage}</p>}
-    
       </form>
     );
   }
