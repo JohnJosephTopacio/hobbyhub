@@ -1,7 +1,11 @@
 import { isAxiosError } from "axios";
 
+ interface ErrorResponse {
+  message: string
+}
+
 export function handleAxiosError(error: unknown): string {
-  if (isAxiosError(error)) {
+  if (isAxiosError<ErrorResponse>(error)) {
     // Server Error
     if (error.response?.data?.message) {
       return error.response.data.message;

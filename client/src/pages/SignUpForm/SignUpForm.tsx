@@ -4,9 +4,11 @@
   import { useNavigate } from 'react-router'
   import { handleAxiosError } from '@/utils/axiosErrorHAndler'
 
-  interface registerResponse {
+  interface RegisterResponse {
     message: string
   }
+  
+  const regex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
 
   function SignUpForm () {
     const [email, setEmail] = useState('');
@@ -25,7 +27,6 @@
       }
 
       // Validate the username using regex
-      const regex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
       if (!regex.test(username)) {
         setIsSuccess(false);
         setResultMessage('Username must be 6-16 characters. Starting with a letter. Only underscores are allowed as special characters.');
@@ -33,7 +34,7 @@
       }
 
       // If password and confirmation password does not match, notify the user
-      if (!(password === confirmationPassword)) {
+      if (password !== confirmationPassword) {
         setIsSuccess(false);
         setResultMessage('Passwords do not match.');
         return;
@@ -43,7 +44,7 @@
 
       try {
         const response = await instance
-        .post<registerResponse>(
+        .post<RegisterResponse>(
           "auth/register", 
           {
             email,
