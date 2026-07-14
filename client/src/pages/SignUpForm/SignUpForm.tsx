@@ -1,7 +1,8 @@
   import '@/pages/SignUpForm/SignUpForm.css'
   import { useState } from 'react'
-  import { instance, isAxiosError } from '@/utils/axiosInstance' 
+  import { instance } from '@/utils/axiosInstance' 
   import { useNavigate } from 'react-router'
+  import { handleAxiosError } from '@/utils/axiosErrorHAndler'
 
   interface registerResponse {
     message: string
@@ -39,36 +40,35 @@
       }
 
       setIsLoading(true);
+
       try {
         const response = await instance
-        .post<registerResponse>("auth/register", {
-          email,
-          username,
-          password
-        })
+        .post<registerResponse>(
+          "auth/register", 
+          {
+            email,
+            username,
+            password
+          }
+        );
         setIsSuccess(true);
+
+        // Clear the input fields in the UI
         setEmail('');
         setUsername('');
         setPassword('');
         setConfirmationPassword('');
-        setResultMessage(response.data.message + ' Redirecting to login...');
+
+        // Notify user of redirection then redirect
+        setResultMessage(response.data.message + ' Redirecting to login');
         setTimeout(() => {
-          navigate('/login')
+          navigate('/login');
         }, 1500);
-        
+
       } catch (error) {
         setIsSuccess(false);
-        if (isAxiosError(error)) {
-          if (error.response?.data?.message) {
-            setResultMessage(error.response.data.message);
-          } else {
-            setResultMessage('Axios Error.');
-          }
-        } else if (error instanceof Error) {
-          setResultMessage(error.message);
-        } else {
-          setResultMessage('Unexpected Error.');
-        }
+        // Upon non 2xx errors, axios throws an AxiosError object
+        setResultMessage(handleAxiosError(error));
       } finally {
         setIsLoading(false);
       }
