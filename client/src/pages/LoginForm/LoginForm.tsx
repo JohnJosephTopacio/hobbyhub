@@ -20,7 +20,7 @@ function LoginForm() {
   const navigate = useNavigate();
 
   const auth = useAuth();
-  const { login } = auth;
+  const { setToken } = auth;
 
   async function formHandler(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -37,7 +37,7 @@ function LoginForm() {
         password
       });
 
-      login(response.data.accessToken); 
+      setToken(response.data.accessToken); 
       setIsSuccess(true);
       setResultMessage('Successful Logon!');
 
