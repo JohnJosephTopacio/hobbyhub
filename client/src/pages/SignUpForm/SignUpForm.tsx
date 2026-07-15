@@ -2,7 +2,7 @@
   import { useState } from 'react'
   import { instance } from '@/utils/axiosInstance' 
   import { useNavigate } from 'react-router'
-  import { handleAxiosError } from '@/utils/axiosErrorHAndler'
+  import { handleAxiosError } from '@/utils/axiosErrorHandler'
 
   interface RegisterResponse {
     message: string
