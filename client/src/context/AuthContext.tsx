@@ -1,7 +1,7 @@
 import { createContext, useState, useContext, useCallback, useMemo } from 'react';
-
+import { setAccessToken } from '@/utils/accessToken';
 type AuthContextType = {
-  accessToken: string | null,
+  localAccessToken: string | null,
   setToken: (token: string) => void,
   resetToken: () => void,
   isAuthenticated: boolean
@@ -10,21 +10,23 @@ type AuthContextType = {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode}) {
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [localAccessToken, setLocalAccessToken] = useState<string | null>(null);
   
   const setToken = useCallback((token: string) => {
+    setLocalAccessToken(token);
     setAccessToken(token);
   }, []);
 
   const resetToken = useCallback(() => {
+    setLocalAccessToken(null);
     setAccessToken(null); 
   },[]);
 
-  const isAuthenticated = accessToken !== null;
+  const isAuthenticated = localAccessToken !== null;
 
   const value = useMemo(
-    () => ({ accessToken, setToken, resetToken, isAuthenticated}),
-    [accessToken, setToken, resetToken, isAuthenticated]
+    () => ({ localAccessToken, setToken, resetToken, isAuthenticated}),
+    [localAccessToken, setToken, resetToken, isAuthenticated]
   );
 
   return (
