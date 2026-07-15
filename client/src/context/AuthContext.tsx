@@ -1,9 +1,9 @@
-import { createContext, useState, useContext, useCallback } from 'react';
+import { createContext, useState, useContext, useCallback, useMemo } from 'react';
 
 type AuthContextType = {
   accessToken: string | null,
-  login: (token: string) => void,
-  logout: () => void,
+  setToken: (token: string) => void,
+  resetToken: () => void,
   isAuthenticated: boolean
 }
 
@@ -12,18 +12,23 @@ export const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode}) {
   const [accessToken, setAccessToken] = useState<string | null>(null);
   
-  const login = useCallback((token: string) => {
+  const setToken = useCallback((token: string) => {
     setAccessToken(token);
   }, []);
 
-  const logout = useCallback(() => {
+  const resetToken = useCallback(() => {
     setAccessToken(null); 
   },[]);
 
   const isAuthenticated = accessToken !== null;
 
+  const value = useMemo(
+    () => ({ accessToken, setToken, resetToken, isAuthenticated}),
+    [accessToken, setToken, resetToken, isAuthenticated]
+  );
+
   return (
-    <AuthContext.Provider value={{accessToken, login, logout, isAuthenticated}}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );
