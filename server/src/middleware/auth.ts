@@ -1,6 +1,6 @@
 import jwt, { JwtPayload } from 'jsonwebtoken';
 import { env } from '../config/env.js';
-import { NoTokenProvided } from '../errors/index.js';
+import { NoTokenProvided, InvalidToken } from '../errors/index.js';
 import type { Request, Response, NextFunction } from 'express';
 
 export function authenticateToken(req: Request, _res: Response, next: NextFunction) {
@@ -15,9 +15,13 @@ export function authenticateToken(req: Request, _res: Response, next: NextFuncti
   try {
     const decoded = jwt.verify(token, secret);
     req.user = decoded as JwtPayload;
-    
     next();
   } catch (err) {
+    if (err instanceof Error) {
+      if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+        next(new InvalidToken());
+      }
+    }
     return next(err);
   }
 }
