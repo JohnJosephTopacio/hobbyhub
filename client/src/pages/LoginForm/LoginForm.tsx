@@ -2,7 +2,8 @@ import '@/pages/LoginForm/LoginForm.css'
 import { useNavigate } from 'react-router'
 import { useState } from 'react'
 import { useAuth } from '@/context/AuthContext'
-import { instance, isAxiosError } from '@/utils/axiosInstance'
+import { instance } from '@/utils/axiosInstance'
+import { handleAxiosError } from '@/utils/axiosErrorHandler'
 
 interface loginResponse {
   message: string,
@@ -15,7 +16,7 @@ function LoginForm() {
   const [resultMessage, setResultMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-
+  
   const navigate = useNavigate();
 
   const auth = useAuth();
@@ -28,6 +29,7 @@ function LoginForm() {
     }
 
     setIsLoading(true);
+    
     try {
       const response = await instance
       .post<loginResponse>('auth/login', {
@@ -42,17 +44,7 @@ function LoginForm() {
       navigate('/home');
     } catch(error) {
       setIsSuccess(false);
-      if (isAxiosError(error)) {
-        if (error.response?.data?.message) {
-          setResultMessage(error.response.data.message);
-        } else {
-          setResultMessage('Axios Error');
-        }
-      } else if (error instanceof Error) {
-        setResultMessage(error.message);
-      } else {
-        setResultMessage('Unexpected Error.');
-      }
+      setResultMessage(handleAxiosError(error));
     } finally {
       setIsLoading(false);
     }
