@@ -7,7 +7,8 @@ function validateEnv() {
     'DB_USER',
     'DB_PASSWORD',
     'DB_PORT',
-    'JWT_SECRET',
+    'JWT_ACCESS_SECRET',
+    'JWT_REFRESH_SECRET',
     'FRONTEND_SERVER_URL'
   ]
 
@@ -25,7 +26,8 @@ function validateEnv() {
   const DB_USER: string = process.env.DB_USER!;
   const DB_PASSWORD: string = process.env.DB_PASSWORD!;
   const DB_PORT: number = Number(process.env.DB_PORT!);
-  const JWT_SECRET: string = process.env.JWT_SECRET!;
+  const JWT_ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET!;
+  const JWT_REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET!;
   const FRONTEND_SERVER_URL: string = process.env.FRONTEND_SERVER_URL!;
 
   if (isNaN(PORT)) {
@@ -43,7 +45,8 @@ function validateEnv() {
     DB_USER,
     DB_PASSWORD,
     DB_PORT,
-    JWT_SECRET,
+    JWT_ACCESS_SECRET,
+    JWT_REFRESH_SECRET,
     FRONTEND_SERVER_URL
   }
 }

@@ -3,7 +3,7 @@ import AppError from './AppError.js'
 export class NoTokenProvided extends AppError {
   constructor() {
     super(
-      'No token was provided.',
+      'No token was provided',
       401,
       'noTokenProvided'
     );
@@ -13,7 +13,7 @@ export class NoTokenProvided extends AppError {
 export class InvalidToken extends AppError {
   constructor() {
     super(
-      'Invalid or expired token.',
+      'Invalid or expired token',
       401,
       'invalidOrExpiredToken'
     );
@@ -23,7 +23,7 @@ export class InvalidToken extends AppError {
 export class MissingFields extends AppError {
   constructor() {
     super(
-      'Missing required input fields.',
+      'Missing required input fields',
       400,
       'missingFields'
     );
@@ -33,7 +33,7 @@ export class MissingFields extends AppError {
 export class InvalidEmailFormat extends AppError {
   constructor() {
     super(
-      'Invalid email format.',
+      'Invalid email format',
       400,
       'invalidEmailFormat'
     );
@@ -43,7 +43,7 @@ export class InvalidEmailFormat extends AppError {
 export class InvalidUsernameFormat extends AppError {
   constructor() {
     super(
-      'Invalid username format.',
+      'Invalid username format',
       400, 
       'invalidUsernameFormat'
     )
@@ -53,7 +53,7 @@ export class InvalidUsernameFormat extends AppError {
 export class EmailRegistered extends AppError {
   constructor() {
     super (
-      'Email already registered.',
+      'Email already registered',
       409,
       'emailRegistered'
     );
@@ -63,7 +63,7 @@ export class EmailRegistered extends AppError {
 export class UsernameRegistered extends AppError {
   constructor() {
     super (
-      'Username already registered.',
+      'Username already registered',
       409,
       'usernameRegistered'
     );
@@ -95,7 +95,7 @@ export class EmailNotRegistered extends AppError {
 export class UserNotFound extends AppError {
   constructor() {
     super ( 
-      'User not found.',
+      'User not found',
       404,
       'userNotFound'
     );
@@ -105,7 +105,7 @@ export class UserNotFound extends AppError {
 export class CouldNotFetchUser extends AppError {
   constructor() {
     super (
-      'Could not fetch the user.',
+      'Could not fetch the user',
       500,
       'fetchUserFailed'
     );
@@ -115,15 +115,12 @@ export class CouldNotFetchUser extends AppError {
 export class EnvironmentVariableMissing extends AppError {
   constructor() {
     super (
-      'Internal Error.',
+      'Internal Error',
       500,
       'internalError',
       'Environment variable is Missing'
-    )
+    );
   }
 }
-
-
-
 
 

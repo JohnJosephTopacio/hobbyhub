@@ -1,10 +1,16 @@
 import { useNavigate } from 'react-router'
 import { useState, useEffect } from 'react'
-
-const getMeUrl = new URL("auth/me", import.meta.env.VITE_BACKEND_SERVER_URL);
+import { instance, isAxiosError } from '@/utils/axiosInstance'
+import { handleAxiosError } from '@/utils/axiosErrorHandler'
 
 interface Result {
   username?: string
+}
+
+interface UserInfo {
+  username: string,
+  email: string,
+  created_at: Date
 }
 
 function Home () {  
@@ -12,30 +18,30 @@ function Home () {
   const [result, setResult] = useState<Result | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
+  // const auth = useAuth();
+  // const accessToken = auth.accessToken;
 
-  useEffect(()=> {
+  useEffect(()=> { 
+    
+    
     async function fetchUserData() {
       try {
-        const response = await fetch(getMeUrl, {
-          credentials: "include",
-          method: "GET",
-        });
+        const response = await instance
+        .get<UserInfo>('auth/me');
 
-        if (response.status === 401) {
-          navigate('/login');
-          return;
+        if (response.statusText !== 'OK') {
+          throw new Error('Failed to fetch user');
         }
 
-        if (!response.ok) {
-          throw new Error('Failed to fetch user')
-        }
-
-        const result = await response.json();
-        setResult(result);
+        setResult(response.data);
       } catch (error) {
-        if (error instanceof Error) {
-          console.error(error.message);
-        }
+        console.error(handleAxiosError(error));
+        if (isAxiosError(error)) {
+          if (error.response && error.response.status === 401) {
+            navigate('/login');
+            return;
+          };
+        }   
       } finally {
         setIsLoading(false);
       }

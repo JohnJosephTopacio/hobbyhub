@@ -1,22 +1,27 @@
-import jwt from 'jsonwebtoken';
+import jwt, { JwtPayload } from 'jsonwebtoken';
 import { env } from '../config/env.js';
-import { NoTokenProvided } from '../errors/index.js';
+import { NoTokenProvided, InvalidToken } from '../errors/index.js';
 import type { Request, Response, NextFunction } from 'express';
 
 export function authenticateToken(req: Request, _res: Response, next: NextFunction) {
-  const token = req.cookies.token;
-  const secret = env.JWT_SECRET;
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
+  const secret = env.JWT_ACCESS_SECRET;
+
+  if (!token) {
+    throw new NoTokenProvided();
+  }
 
   try {
-    if (!token) {
-      throw new NoTokenProvided();
-    }
-
     const decoded = jwt.verify(token, secret);
-    req.user = decoded as AuthenticationPayload;
-    
+    req.user = decoded as JwtPayload;
     next();
   } catch (err) {
+    if (err instanceof Error) {
+      if (err.name === 'TokenExpiredError' || err.name === 'JsonWebTokenError') {
+        next(new InvalidToken());
+      }
+    }
     return next(err);
   }
 }
