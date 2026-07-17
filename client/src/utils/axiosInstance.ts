@@ -20,7 +20,6 @@ export const instance = axios.create({
 instance.interceptors.request.use(
   (config) => {
     const token = getAccessToken();
-
     if (token) {
       config.headers.Authorization =  `Bearer ${token}`;
     }
@@ -51,12 +50,18 @@ instance.interceptors.response.use(
     }
 
     // if invalid token or no token, as well as hasn't been retried yet, run a silent refresh
-    if ((error.response.data.code === 'NoTokenProvided' || error.response.data.code === 'InvalidToken') && !originalRequest._retry) {
+    if (
+      error.response.data.statusCode === 401 && 
+      (error.response.data.code === 'noTokenProvided' || 
+      error.response.data.code === 'invalidToken') && 
+      !originalRequest._retry
+    ) {
       // mark the current retry
       originalRequest._retry = true;
-
-      // send refresh request 
+       
       try {
+        // refresh token only if the refresh hasn't started yet 
+     
         if (!refreshPromise) {
           refreshPromise = refreshToken().finally(
             () => {
@@ -64,6 +69,7 @@ instance.interceptors.response.use(
               });
         }
 
+        // otherwise just wait for the ongoing promise to finish
         await refreshPromise;
       } catch(error) {
         console.error(handleAxiosError(error));
