@@ -39,7 +39,7 @@
     "esModuleInterop": true
   },
 
-  "include": ["src", "scripts/migrate.ts", "scripts/seed.ts"],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
   // to add in the future: paths and baseURLs
 }
