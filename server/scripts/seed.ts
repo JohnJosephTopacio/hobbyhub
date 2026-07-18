@@ -1,13 +1,13 @@
-import 'dotenv/config'
-import { resolve } from 'node:path'
-import { readFile } from 'node:fs/promises'
-import pool from '../src/db/db.js'
-import path from 'node:path'
+import 'dotenv/config';
+import { resolve } from 'node:path';
+import { readFile } from 'node:fs/promises';
+import pool from '../src/db/db.js';
+import path from 'node:path';
 
 const seedPath = resolve(import.meta.dirname, '../seeds/seed.sql');
 
 async function getSeedingFile(seedPath: string) {
-  const query = await readFile(seedPath, { encoding: 'utf-8'});
+  const query = await readFile(seedPath, { encoding: 'utf-8' });
   return query;
 }
 

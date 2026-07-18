@@ -1,9 +1,9 @@
-import { Pool } from 'pg'
-import { env } from '../config/env.js'
+import { Pool } from 'pg';
+import { env } from '../config/env.js';
 
 const pool = new Pool({
   host: env.DB_HOST,
-  user:  env.DB_USER,
+  user: env.DB_USER,
   password: env.DB_PASSWORD,
   database: env.DB,
   port: env.DB_PORT,
@@ -12,7 +12,7 @@ const pool = new Pool({
 const testConnection = async () => {
   try {
     await pool.query('SELECT NOW()');
-    console.log('Database reachable.')
+    console.log('Database reachable.');
   } catch (error: unknown) {
     // this type guard ensures that cases where .message property does not exist is handled
     if (error instanceof Error) {
@@ -27,8 +27,3 @@ const testConnection = async () => {
 testConnection();
 
 export default pool;
-
-
-
-
-

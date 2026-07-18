@@ -1,12 +1,12 @@
-import AppError from '../errors/AppError.js'
+import AppError from '../errors/AppError.js';
 import type { Request, Response, NextFunction } from 'express';
-import { env } from '../config/env.js'
+import { env } from '../config/env.js';
 
 /* Things to add: 
   Production Logger (Look into Winston)
   Request Context / Unique Request ID generation
   Error Monitoring
-*/ 
+*/
 
 interface ResponseToClient {
   message: string;
@@ -14,26 +14,25 @@ interface ResponseToClient {
   code: string;
 }
 
-export function errorHandler (err: Error, _req: Request, res: Response, _next: NextFunction) {
+export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
   let response: ResponseToClient;
 
   // If in development
-  if (env.NODE_ENV === "dev" || env.NODE_ENV === "development") {
-    
+  if (env.NODE_ENV === 'dev' || env.NODE_ENV === 'development') {
     // Log the error object
     console.error(err);
-    console.error(err.stack)
+    console.error(err.stack);
 
     // If AppError
     if (err instanceof AppError) {
       response = {
-        message: err.internal?.message || err.message, 
+        message: err.internal?.message || err.message,
         statusCode: err.statusCode,
-        code: err.code
-      }
+        code: err.code,
+      };
 
       return res.status(err.statusCode).json(response);
-    } 
+    }
     // If standard Error or others
     let statusCode = 500;
     if ('status' in err && typeof err.status === 'number') {
@@ -46,31 +45,31 @@ export function errorHandler (err: Error, _req: Request, res: Response, _next: N
 
     response = {
       message: err.message,
-      statusCode: statusCode, 
-      code: 'internalError'
-    }
+      statusCode: statusCode,
+      code: 'internalError',
+    };
 
     return res.status(statusCode).json(response);
-  } 
-  
+  }
+
   // If in production
-  if (env.NODE_ENV === 'production') { 
+  if (env.NODE_ENV === 'production') {
     // Return custom error with non internal message
     if (err instanceof AppError) {
       response = {
-        message: err.message, 
+        message: err.message,
         statusCode: err.statusCode,
-        code: err.code
-      }
+        code: err.code,
+      };
 
       return res.status(err.statusCode).json(response);
-    } 
+    }
 
     response = {
       message: 'Internal Error.',
       statusCode: 500,
-      code: 'internalError'
-    }
+      code: 'internalError',
+    };
 
     // If error is upstream, respond with a vague error
     return res.status(500).json(response);
@@ -79,9 +78,7 @@ export function errorHandler (err: Error, _req: Request, res: Response, _next: N
   response = {
     message: 'Internal Error.',
     statusCode: 500,
-    code: 'internalError'
-  } 
+    code: 'internalError',
+  };
   return res.status(500).json(response);
 }
-
-

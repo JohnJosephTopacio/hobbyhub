@@ -1,23 +1,22 @@
-
 // Auto-Injects the environment variables from .env to the process when it runs
 import 'dotenv/config';
 
 import express from 'express';
 import cors from 'cors';
-import cookieParser from 'cookie-parser'
+import cookieParser from 'cookie-parser';
 
-import { env } from './config/env.js'
+import { env } from './config/env.js';
 import { errorHandler } from './middleware/error.js';
 
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 
-const app = express(); 
+const app = express();
 
 // Credentials field must be set to true for Access-Control-Allow-Credentials to be attached to header
 const corsOptions = {
   origin: env.FRONTEND_SERVER_URL,
-  credentials: true
+  credentials: true,
 };
 
 /* Middlewares */

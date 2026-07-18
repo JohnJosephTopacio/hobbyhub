@@ -1,4 +1,4 @@
-import { JwtPayload } from "jsonwebtoken";
+import { JwtPayload } from 'jsonwebtoken';
 
 export interface RefreshPayload extends JwtPayload {
   jti: string;
@@ -9,6 +9,8 @@ export interface AccessPayload extends JwtPayload {
   jti: string;
 }
 
-export function isRefreshPayload(payload: JwtPayload | string | RefreshPayload): payload is RefreshPayload {
+export function isRefreshPayload(
+  payload: JwtPayload | string | RefreshPayload,
+): payload is RefreshPayload {
   return (payload as RefreshPayload).jti !== undefined;
 }
