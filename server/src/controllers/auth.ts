@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import type { Request, Response, NextFunction } from 'express';
 import { env } from '../config/env.js'
-import { checkUserExistsByEmail, checkUserExistsByUsername, insertUserAndCreateProfile, getUserByEmail, getUserInfo, storeRefreshToken, getRefreshTokenByJti, updateInactiveToken} from '../db/queries/authQueries.js';
+import { checkUserExistsByEmail, checkUserExistsByUsername, insertUserAndCreateProfile, getUserByEmail, getUserInfo, storeRefreshToken, getRefreshTokenByJti, updateInactiveToken} from '../repositories/authQueries.js';
 import { MissingFields, InvalidEmailFormat, InvalidUsernameFormat, EmailRegistered, UsernameRegistered, EmailNotRegistered, IncorrectPassword, UserNotFound, CouldNotFetchUser, NoTokenProvided } from '../errors/index.js'
 import crypto from 'node:crypto'
 import { isRefreshPayload, RefreshPayload } from '../types/auth.js';

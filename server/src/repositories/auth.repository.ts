@@ -1,5 +1,5 @@
 import { PoolClient } from 'pg';
-import pool from '../db.js'
+import pool from '../db/db.js'
 
 interface UserAuthRow {
   id: number,
