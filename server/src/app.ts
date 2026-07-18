@@ -8,7 +8,9 @@ import cookieParser from 'cookie-parser'
 
 import { env } from './config/env.js'
 import { errorHandler } from './middleware/error.js';
+
 import authRouter from './routes/auth.js';
+import usersRouter from './routes/users.js';
 
 const app = express(); 
 
@@ -31,6 +33,7 @@ app.use(cookieParser());
 
 // Routers
 app.use('/auth', authRouter);
+app.use('/users', usersRouter);
 
 // Handle all errors that bubble up
 app.use(errorHandler);
