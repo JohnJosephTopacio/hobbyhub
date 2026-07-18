@@ -6,10 +6,9 @@ import express from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser'
 
-import authRouter from './routes/auth.js';
-import { errorHandler } from './middleware/error.js';
-
 import { env } from './config/env.js'
+import { errorHandler } from './middleware/error.js';
+import authRouter from './routes/auth.js';
 
 const app = express(); 
 
