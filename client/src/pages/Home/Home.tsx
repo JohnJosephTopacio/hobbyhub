@@ -27,7 +27,7 @@ function Home () {
     async function fetchUserData() {
       try {
         const response = await instance
-        .get<UserInfo>('auth/me');
+        .get<UserInfo>('users/me');
 
         if (response.statusText !== 'OK') {
           throw new Error('Failed to fetch user');
