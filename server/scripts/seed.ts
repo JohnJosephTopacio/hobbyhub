@@ -1,7 +1,7 @@
 import 'dotenv/config'
 import { resolve } from 'node:path'
 import { readFile } from 'node:fs/promises'
-import pool from './db.js'
+import pool from '../src/db/db.js'
 import path from 'node:path'
 
 const seedPath = resolve(import.meta.dirname, 'migrations/seed.sql');
