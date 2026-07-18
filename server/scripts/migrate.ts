@@ -6,7 +6,7 @@ import path from 'node:path';
 
 console.log('migrate start')
 
-const migrationPath = resolve(import.meta.dirname,'migrations');
+const migrationPath = resolve(import.meta.dirname,'../migrations');
 
 async function getMigrationFileNames() {  
   const files = await readdir(migrationPath);

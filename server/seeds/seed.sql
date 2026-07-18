@@ -9,16 +9,16 @@ INSERT INTO hobby_categories (category, slug) VALUES
   ('SCIENCE AND TECH', 'science-and-tech');
 
 INSERT INTO hobby_tags (tag, category_id) VALUES 
-  ('Book Reading', 5),
-  ('Basketball', 2),
-  ('Programming', 8),
-  ('Hiking', 3),
-  ('Digital Art', 1);
+  ('Book Reading', 13),
+  ('Basketball', 10),
+  ('Programming', 16),
+  ('Hiking', 11),
+  ('Digital Art', 9);
 
 INSERT INTO user_tags (user_id, tag_id) VALUES
-  (20, 2),
-  (22, 4),
-  (23, 3),
   (20, 1),
+  (22, 2),
+  (23, 3),
+  (20, 4),
   (22, 5);
     

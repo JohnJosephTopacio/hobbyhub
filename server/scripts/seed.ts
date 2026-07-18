@@ -4,7 +4,7 @@ import { readFile } from 'node:fs/promises'
 import pool from '../src/db/db.js'
 import path from 'node:path'
 
-const seedPath = resolve(import.meta.dirname, 'migrations/seed.sql');
+const seedPath = resolve(import.meta.dirname, '../seeds/seed.sql');
 
 async function getSeedingFile(seedPath: string) {
   const query = await readFile(seedPath, { encoding: 'utf-8'});
@@ -14,7 +14,7 @@ async function getSeedingFile(seedPath: string) {
 const query = await getSeedingFile(seedPath);
 
 if (query === '') {
-  throw Error('Error Seeding: No Query Found')
+  throw Error('Error Seeding: No Query Found');
 }
 
 try {
