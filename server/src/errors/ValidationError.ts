@@ -1,7 +1,7 @@
 import { ZodError } from 'zod';
 import AppError from './AppError.js';
 
-interface FieldObject {
+export interface FieldObject {
   fieldName: string;
   fieldMessage: string;
 }
