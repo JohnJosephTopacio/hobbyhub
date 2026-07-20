@@ -1,6 +1,7 @@
 import AppError from '../errors/AppError.js';
 import type { Request, Response, NextFunction } from 'express';
 import { env } from '../config/env.js';
+import { FieldError, ValidationError } from '../errors/ValidationError.js';
 
 /* Things to add: 
   Production Logger (Look into Winston)
@@ -12,24 +13,33 @@ interface ResponseToClient {
   message: string;
   statusCode: number;
   code: string;
+  fields?: FieldError[];
 }
 
 export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
-  let response: ResponseToClient;
+  let response: ResponseToClient | null = null;
 
   // If in development
   if (env.NODE_ENV === 'dev' || env.NODE_ENV === 'development') {
     // Log the error object
     console.error(err);
-    console.error(err.stack);
 
     // If AppError
     if (err instanceof AppError) {
-      response = {
-        message: err.internal?.message || err.message,
-        statusCode: err.statusCode,
-        code: err.code,
-      };
+      if (err instanceof ValidationError) {
+        response = {
+          message: err.internal?.message || err.message,
+          statusCode: err.statusCode,
+          code: err.code,
+          fields: err.fields,
+        };
+      } else {
+        response = {
+          message: err.internal?.message || err.message,
+          statusCode: err.statusCode,
+          code: err.code,
+        };
+      }
 
       return res.status(err.statusCode).json(response);
     }
@@ -56,11 +66,20 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
   if (env.NODE_ENV === 'production') {
     // Return custom error with non internal message
     if (err instanceof AppError) {
-      response = {
-        message: err.message,
-        statusCode: err.statusCode,
-        code: err.code,
-      };
+      if (err instanceof ValidationError) {
+        response = {
+          message: err.message,
+          statusCode: err.statusCode,
+          code: err.code,
+          fields: err.fields,
+        };
+      } else {
+        response = {
+          message: err.message,
+          statusCode: err.statusCode,
+          code: err.code,
+        };
+      }
 
       return res.status(err.statusCode).json(response);
     }
