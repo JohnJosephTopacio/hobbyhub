@@ -45,13 +45,10 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
     }
     // If standard Error or others
     let statusCode = 500;
-    if ('status' in err && typeof err.status === 'number') {
-      statusCode = err.status;
-    }
 
-    if ('statusCode' in err && typeof err.statusCode === 'number') {
-      statusCode = err.statusCode;
-    }
+    // If error object has a status or statusCode property, use it
+    'status' in err && typeof err.status === 'number' && (statusCode = err.status);
+    'statusCode' in err && typeof err.statusCode === 'number' && (statusCode = err.statusCode);
 
     response = {
       message: err.message,
