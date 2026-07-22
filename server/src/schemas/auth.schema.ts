@@ -1,11 +1,21 @@
 import * as z from 'zod';
 
 export const registerUserSchema = z.strictObject({
-  email: z.email(),
+  email: z.email('Invalid Email Format'),
   // 5-20 characters. Only letters, numbers, hyphens, and underscores are allowed.
-  username: z.string().regex(/^[a-zA-Z0-9_-]{5,20}$/),
+  username: z
+    .string('Invalid Username Format')
+    .regex(
+      /^[a-zA-Z0-9_-]{5,20}$/,
+      'Username must be 5-20 characters. Only letters, numbers, hyphens, and underscores are allowed',
+    ),
   // Minimum 8 characters. At least one number, one lowercase, and one uppercase letter.
-  password: z.string().regex(/^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/),
+  password: z
+    .string('Invalid password Format')
+    .regex(
+      /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
+      'Minimum 8 characters. At least one number, one lowercase, and one uppercase letter',
+    ),
 });
 
 export type RegisterBody = z.infer<typeof registerUserSchema>;
