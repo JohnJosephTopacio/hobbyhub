@@ -10,6 +10,7 @@ function validateEnv() {
     'JWT_ACCESS_SECRET',
     'JWT_REFRESH_SECRET',
     'FRONTEND_SERVER_URL',
+    'BCYRPT_COST_FACTOR',
   ];
 
   // check for missing environment variable values
@@ -29,6 +30,7 @@ function validateEnv() {
   const JWT_ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET!;
   const JWT_REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET!;
   const FRONTEND_SERVER_URL: string = process.env.FRONTEND_SERVER_URL!;
+  const BCYRPT_COST_FACTOR: number = Number(process.env.BCYRPT_COST_FACTOR);
 
   if (isNaN(PORT)) {
     throw new Error('The environment variable PORT should be a number');
@@ -48,6 +50,7 @@ function validateEnv() {
     JWT_ACCESS_SECRET,
     JWT_REFRESH_SECRET,
     FRONTEND_SERVER_URL,
+    BCYRPT_COST_FACTOR,
   };
 }
 

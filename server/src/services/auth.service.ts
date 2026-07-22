@@ -1,11 +1,12 @@
 import bcrypt from 'bcryptjs';
+import { env } from '../config/env.js';
+import { EmailRegistered, UsernameRegistered } from '../errors/index.js';
+import { RegisterBody } from '../schemas/auth.schema.js';
 import {
   checkUserExistsByEmail,
   checkUserExistsByUsername,
   insertUserAndCreateProfile,
 } from '../repositories/auth.repository.js';
-import { EmailRegistered, UsernameRegistered } from '../errors/index.js';
-import { RegisterBody } from '../schemas/auth.schema.js';
 
 export async function registerUserService(input: RegisterBody): Promise<void> {
   // Check if email is already registered
@@ -22,7 +23,7 @@ export async function registerUserService(input: RegisterBody): Promise<void> {
   }
 
   // Hash the password
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await bcrypt.hash(password, env.BCYRPT_COST_FACTOR ?? 10);
 
   // Create the user in the users table
   await insertUserAndCreateProfile(email, username, hashedPassword);
