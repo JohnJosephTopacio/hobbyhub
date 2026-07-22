@@ -1,11 +1,17 @@
+import type { Request, Response, NextFunction } from 'express';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
-import type { Request, Response, NextFunction } from 'express';
+import crypto from 'node:crypto';
+import * as z from 'zod';
+
 import { env } from '../config/env.js';
+import pool from '../db/db.js';
+
+import { registerUserService } from '../services/auth.service.js';
+import { isRefreshPayload, RefreshPayload } from '../types/auth.js';
+import { registerUserSchema } from '../schemas/auth.schema.js';
+import { ValidationError } from '../errors/ValidationError.js';
 import {
-  checkUserExistsByEmail,
-  checkUserExistsByUsername,
-  insertUserAndCreateProfile,
   getUserByEmail,
   storeRefreshToken,
   getRefreshTokenByJti,
@@ -13,67 +19,31 @@ import {
 } from '../repositories/auth.repository.js';
 import {
   MissingFields,
-  InvalidEmailFormat,
-  InvalidUsernameFormat,
-  EmailRegistered,
-  UsernameRegistered,
   EmailNotRegistered,
   IncorrectPassword,
   NoTokenProvided,
 } from '../errors/index.js';
-import crypto from 'node:crypto';
-import { isRefreshPayload, RefreshPayload } from '../types/auth.js';
-import pool from '../db/db.js';
 
 // Token and cookie expiry minutes
 const expiryDays = 15;
 
 export async function registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
-    const regex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-    const { email, username, password } = req.body;
-
-    // Check if required register fields exist on the response body
-    if (!email || !username || !password) {
-      throw new MissingFields();
-    }
-
-    // Check if email format is proper
-    if (!regex.test(email)) {
-      throw new InvalidEmailFormat();
-    }
-
-    // Check if username is proper
-    const usernameRegex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
-    if (!usernameRegex.test(username)) {
-      throw new InvalidUsernameFormat();
-    }
-
+    const input = registerUserSchema.parse(req.body);
+    await registerUserService(input);
+    
     /* 
     To be implemented in the future:
     check that @ exists and let the email verification step (confirmation email) do the real validation
     */
 
-    // Check if email is already registered
-    const emailRecord = await checkUserExistsByEmail(email);
-    if (emailRecord.rowCount !== 0) {
-      throw new EmailRegistered();
-    }
-
-    // Check if username already exists
-    const usernameRecord = await checkUserExistsByUsername(username);
-    if (usernameRecord.rowCount !== 0) {
-      throw new UsernameRegistered();
-    }
-
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create the user in the users table
-    await insertUserAndCreateProfile(email, username, hashedPassword);
     res.status(201).json({ message: 'User has been created' });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      next(new ValidationError(error));
+      return;
+    }
+    next(error);
   }
 }
 
@@ -217,7 +187,9 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
   }
 
   // RETURN NEW ACCESS TOKEN IN MEMORY AND NEW REFRESH TOKEN IN COOKIE
-  const accessToken = jwt.sign({ sub: decoded.sub }, env.JWT_ACCESS_SECRET, { expiresIn: '5m' });
+  const accessToken = jwt.sign({ sub: decoded.sub }, env.JWT_ACCESS_SECRET, {
+    expiresIn: '5m',
+  });
 
   if (newRefreshToken === '') {
     next(new Error('New refresh token missing'));
