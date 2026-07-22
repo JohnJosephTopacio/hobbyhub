@@ -7,7 +7,7 @@ import {
 import { EmailRegistered, UsernameRegistered } from '../errors/index.js';
 import { RegisterBody } from '../schemas/auth.schema.js';
 
-export async function registerUserService(input: RegisterBody) {
+export async function registerUserService(input: RegisterBody): Promise<void> {
   // Check if email is already registered
   const { email, username, password } = input;
   const emailRecord = await checkUserExistsByEmail(email);
