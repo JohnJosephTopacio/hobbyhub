@@ -12,13 +12,13 @@ export async function registerUserService(input: RegisterBody): Promise<void> {
   // Check if email is already registered
   const { email, username, password } = input;
   const emailExists = await findUserByEmail(email);
-  if (!emailExists) {
+  if (emailExists) {
     throw new EmailRegistered();
   }
 
   // Check if username already exists
   const usernameExists = await findUserByUsername(username);
-  if (!usernameExists) {
+  if (usernameExists) {
     throw new UsernameRegistered();
   }
 
