@@ -3,21 +3,21 @@ import { env } from '../config/env.js';
 import { EmailRegistered, UsernameRegistered } from '../errors/index.js';
 import { RegisterBody } from '../schemas/auth.schema.js';
 import {
-  checkUserExistsByEmail,
-  checkUserExistsByUsername,
+  findUserByEmail,
+  findUserByUsername,
   insertUserAndCreateProfile,
 } from '../repositories/auth.repository.js';
 
 export async function registerUserService(input: RegisterBody): Promise<void> {
   // Check if email is already registered
   const { email, username, password } = input;
-  const emailRecord = await checkUserExistsByEmail(email);
+  const emailRecord = await findUserByEmail(email);
   if (emailRecord.rowCount !== 0) {
     throw new EmailRegistered();
   }
 
   // Check if username already exists
-  const usernameRecord = await checkUserExistsByUsername(username);
+  const usernameRecord = await findUserByUsername(username);
   if (usernameRecord.rowCount !== 0) {
     throw new UsernameRegistered();
   }

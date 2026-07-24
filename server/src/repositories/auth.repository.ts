@@ -19,12 +19,12 @@ export interface RefreshToken {
   token_status: string;
 }
 
-export function checkUserExistsByEmail(email: string) {
+export function findUserByEmail(email: string) {
   // For efficiency, returns 1 instead of the whole row of data
   return pool.query('SELECT 1 FROM users WHERE email=$1', [email]);
 }
 
-export function checkUserExistsByUsername(username: string) {
+export function findUserByUsername(username: string) {
   return pool.query('SELECT 1 FROM users WHERE username=$1', [username]);
 }
 
