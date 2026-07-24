@@ -19,8 +19,10 @@ const testConnection = async () => {
     } else {
       console.error('Database connection failed', error);
     }
-    // stop the program from running, otherwise it'd be idle and still consuming resource
+
     await pool.end();
+
+    // Stop the program from running, otherwise it'd be idle and still consuming resource
     process.exit(1);
   }
 };
