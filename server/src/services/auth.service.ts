@@ -17,8 +17,8 @@ export async function registerUserService(input: RegisterBody): Promise<void> {
   }
 
   // Check if username already exists
-  const usernameRecord = await findUserByUsername(username);
-  if (usernameRecord.rowCount !== 0) {
+  const usernameExists = await findUserByUsername(username);
+  if (!usernameExists) {
     throw new UsernameRegistered();
   }
 

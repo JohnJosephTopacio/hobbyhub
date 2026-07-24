@@ -25,8 +25,9 @@ export async function findUserByEmail(email: string): Promise<boolean> {
   return result.rows.length > 0;
 }
 
-export function findUserByUsername(username: string) {
-  return pool.query('SELECT 1 FROM users WHERE username=$1', [username]);
+export async function findUserByUsername(username: string): Promise<boolean> {
+  const result = await pool.query('SELECT 1 FROM users WHERE username = $1 LIMIT 1', [username]);
+  return result.rows.length > 0;
 }
 
 export async function insertUserAndCreateProfile(
