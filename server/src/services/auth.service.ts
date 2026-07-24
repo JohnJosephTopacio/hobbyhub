@@ -23,7 +23,7 @@ export async function registerUserService(input: RegisterBody): Promise<void> {
   }
 
   // Hash the password
-  const hashedPassword = await bcrypt.hash(password, env.BCYRPT_COST_FACTOR ?? 10);
+  const hashedPassword = await bcrypt.hash(password, env.BCRYPT_COST_FACTOR ?? 10);
 
   // Create the user in the users table
   await insertUserAndCreateProfile(email, username, hashedPassword);
