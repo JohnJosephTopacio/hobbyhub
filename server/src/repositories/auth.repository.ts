@@ -19,9 +19,10 @@ export interface RefreshToken {
   token_status: string;
 }
 
-export function findUserByEmail(email: string) {
+export async function findUserByEmail(email: string): Promise<boolean> {
   // For efficiency, returns 1 instead of the whole row of data
-  return pool.query('SELECT 1 FROM users WHERE email=$1', [email]);
+  const result = await pool.query('SELECT 1 FROM users WHERE email = $1 LIMIT 1', [email]);
+  return result.rows.length > 0;
 }
 
 export function findUserByUsername(username: string) {

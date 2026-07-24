@@ -11,8 +11,8 @@ import {
 export async function registerUserService(input: RegisterBody): Promise<void> {
   // Check if email is already registered
   const { email, username, password } = input;
-  const emailRecord = await findUserByEmail(email);
-  if (emailRecord.rowCount !== 0) {
+  const emailExists = await findUserByEmail(email);
+  if (!emailExists) {
     throw new EmailRegistered();
   }
 
