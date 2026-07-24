@@ -14,12 +14,13 @@ const testConnection = async () => {
     await pool.query('SELECT NOW()');
     console.log('Database reachable.');
   } catch (error: unknown) {
-    // this type guard ensures that cases where .message property does not exist is handled
     if (error instanceof Error) {
       console.error('Database connection failed', error.message);
     } else {
       console.error('Database connection failed', error);
     }
+    // stop the program from running, otherwise it'd be idle and still consuming resource
+    await pool.end();
     process.exit(1);
   }
 };
