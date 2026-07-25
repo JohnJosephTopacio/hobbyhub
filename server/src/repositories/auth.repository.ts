@@ -19,41 +19,48 @@ export interface RefreshToken {
   token_status: string;
 }
 
-export async function findUserByEmail(email: string): Promise<boolean> {
+export async function userExistsByEmail(email: string): Promise<boolean> {
   // For efficiency, returns 1 instead of the whole row of data
   const result = await pool.query('SELECT 1 FROM users WHERE email = $1 LIMIT 1', [email]);
   return result.rows.length > 0;
 }
 
-export async function findUserByUsername(username: string): Promise<boolean> {
+export async function userExistsByUsername(username: string): Promise<boolean> {
   const result = await pool.query('SELECT 1 FROM users WHERE username = $1 LIMIT 1', [username]);
   return result.rows.length > 0;
 }
 
-export async function insertUserAndCreateProfile(
+export async function createUserWithProfile(
   email: string,
   username: string,
   hashedPassword: string,
-) {
+): Promise<number> {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
-    const userRecord = await client.query(
+    const result = await client.query<{ id: number }>(
       `
       INSERT INTO users(email, username, password) 
       VALUES ($1, $2, $3) RETURNING id;
     `,
       [email, username, hashedPassword],
     );
+
+    const userRecord = result.rows[0];
+    if (!userRecord) {
+      throw new Error('User creation failed. No rows were returned.');
+    }
+    const userId = userRecord.id;
+
     await client.query(
       `
       INSERT INTO profiles(user_id) 
       VALUES ($1);
     `,
-      [userRecord.rows[0].id],
+      [userId],
     );
     await client.query('COMMIT');
-    return userRecord;
+    return userId;
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;
