@@ -11,11 +11,17 @@ export const registerUserSchema = z.strictObject({
     ),
   // Minimum 8 characters. At least one number, one lowercase, and one uppercase letter.
   password: z
-    .string('Invalid password Format')
+    .string('Invalid Password Format')
     .regex(
       /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/,
       'Minimum 8 characters. At least one number, one lowercase, and one uppercase letter',
     ),
 });
 
+export const loginUserSchema = z.strictObject({
+  email: z.email('Invalid Email Format'),
+  password: z.string('Invalid Password Format'),
+});
+
 export type RegisterBody = z.infer<typeof registerUserSchema>;
+export type loginUserSchema = z.infer<typeof loginUserSchema>;
