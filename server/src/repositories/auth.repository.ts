@@ -65,9 +65,7 @@ export async function createUserWithProfile(
     await client.query('ROLLBACK');
     throw error;
   } finally {
-    if (client) {
-      client.release();
-    }
+    client.release();
   }
 }
 
