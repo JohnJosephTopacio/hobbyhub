@@ -9,20 +9,15 @@ import pool from '../db/db.js';
 
 import { registerUserService } from '../services/auth.service.js';
 import { isRefreshPayload, RefreshPayload } from '../types/auth.js';
-import { registerUserSchema } from '../schemas/auth.schema.js';
+import { registerUserSchema, loginUserSchema } from '../schemas/auth.schema.js';
 import { ValidationError } from '../errors/ValidationError.js';
 import {
-  getUserByEmail,
+  getUser,
   storeRefreshToken,
   getRefreshTokenByJti,
   updateInactiveToken,
 } from '../repositories/auth.repository.js';
-import {
-  MissingFields,
-  EmailNotRegistered,
-  IncorrectPassword,
-  NoTokenProvided,
-} from '../errors/index.js';
+import { EmailNotRegistered, IncorrectPassword, NoTokenProvided } from '../errors/index.js';
 
 // Token and cookie expiry minutes
 const expiryDays = 15;
@@ -31,7 +26,7 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
   try {
     const input = registerUserSchema.parse(req.body);
     await registerUserService(input);
-    
+
     /* 
     To be implemented in the future:
     check that @ exists and let the email verification step (confirmation email) do the real validation
@@ -49,26 +44,17 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
 
 export async function loginUser(req: Request, res: Response, next: NextFunction) {
   try {
-    const { email, password } = req.body;
+    const input = loginUserSchema.parse(req.body);
+    const { email, password } = input;
 
-    // Check if required login fields exists
-    if (!email || !password) {
-      throw new MissingFields();
-    }
-
-    if (typeof email !== 'string' || typeof password !== 'string') {
-      throw new Error('Invalid input formats.');
-    }
-
-    const userRecord = await getUserByEmail(email);
+    const userAuthRecord = await getUser(email);
 
     // Check if the email is not registered
-    if (!userRecord.rowCount) {
+    if (!userAuthRecord.rows[0]) {
       throw new EmailNotRegistered();
     }
 
-    // if rowCount is not 0 or null, .rows[0] must exist
-    const hashedPassword = userRecord.rows[0]!.password;
+    const hashedPassword = userAuthRecord.rows[0].password;
 
     // Hash the incoming password and compare it to the hashed password in the database, if it does not match send an error
     const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
@@ -83,7 +69,7 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
     // If all is well, the user is logged on - send back JWT Token
     const refreshToken = jwt.sign(
       {
-        sub: userRecord.rows[0]!.id,
+        sub: userAuthRecord.rows[0]!.id,
         jti,
       },
       env.JWT_REFRESH_SECRET,
@@ -93,9 +79,9 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
     // Time at the moment + 15 days
     const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
-    await storeRefreshToken(jti, userRecord.rows[0]!.id, refreshTokenExpiry);
+    await storeRefreshToken(jti, userAuthRecord.rows[0].id, refreshTokenExpiry);
 
-    const accessToken = jwt.sign({ sub: userRecord.rows[0]!.id }, env.JWT_ACCESS_SECRET, {
+    const accessToken = jwt.sign({ sub: userAuthRecord.rows[0].id }, env.JWT_ACCESS_SECRET, {
       expiresIn: '5m',
     });
 
