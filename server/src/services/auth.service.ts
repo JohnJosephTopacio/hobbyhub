@@ -1,12 +1,25 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
-import { EmailRegistered, UsernameRegistered } from '../errors/index.js';
-import { RegisterBody } from '../schemas/auth.schema.js';
+import {
+  EmailRegistered,
+  UsernameRegistered,
+  EmailNotRegistered,
+  IncorrectPassword,
+} from '../errors/index.js';
+import { loginUserSchema, RegisterBody } from '../schemas/auth.schema.js';
 import {
   userExistsByEmail,
   userExistsByUsername,
   createUserWithProfile,
+  getUser,
+  storeRefreshToken,
 } from '../repositories/auth.repository.js';
+
+interface TokenSet {
+  accessToken: string;
+  refreshToken: string;
+}
 
 export async function registerUserService(input: RegisterBody): Promise<void> {
   // Check if email is already registered
@@ -27,4 +40,47 @@ export async function registerUserService(input: RegisterBody): Promise<void> {
 
   // Create the user in the users table
   await createUserWithProfile(email, username, hashedPassword);
+}
+
+export async function loginUserService(input: loginUserSchema): Promise<TokenSet> {
+  const { email, password } = input;
+  const userAuthRecord = await getUser(email);
+
+  // Check if the email is not registered
+  if (!userAuthRecord.rows[0]) {
+    throw new EmailNotRegistered();
+  }
+
+  const hashedPassword = userAuthRecord.rows[0].password;
+
+  // Hash the incoming password and compare it to the hashed password in the database, if it does not match send an error
+  const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
+
+  if (!isPasswordCorrect) {
+    throw new IncorrectPassword();
+  }
+
+  // JTI means JWT ID
+  const jti = crypto.randomUUID();
+
+  // If all is well, the user is logged on - send back JWT Token
+  const refreshToken = jwt.sign(
+    {
+      sub: userAuthRecord.rows[0]!.id,
+      jti,
+    },
+    env.JWT_REFRESH_SECRET,
+    { expiresIn: '15d' },
+  );
+
+  // Time at the moment + 15 days
+  const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+
+  await storeRefreshToken(jti, userAuthRecord.rows[0].id, refreshTokenExpiry);
+
+  const accessToken = jwt.sign({ sub: userAuthRecord.rows[0].id }, env.JWT_ACCESS_SECRET, {
+    expiresIn: '5m',
+  });
+
+  return { accessToken, refreshToken };
 }
