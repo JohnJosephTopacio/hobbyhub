@@ -69,8 +69,8 @@ export async function createUserWithProfile(
   }
 }
 
-export function getUserByEmail(email: string) {
-  return pool.query<UserAuthRow>('SELECT id, password FROM users WHERE email=$1', [email]);
+export function getUser(email: string) {
+  return pool.query<UserAuthRow>('SELECT id, password FROM users WHERE email = $1', [email]);
 }
 
 export function getUserInfo(userId: number) {
