@@ -1,5 +1,4 @@
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import {
   EmailRegistered,
@@ -7,7 +6,7 @@ import {
   EmailNotRegistered,
   IncorrectPassword,
 } from '../errors/index.js';
-import { loginUserSchema, RegisterBody } from '../schemas/auth.schema.js';
+import { RegisterBody, LoginBody } from '../schemas/auth.schema.js';
 import {
   userExistsByEmail,
   userExistsByUsername,
@@ -43,7 +42,7 @@ export async function registerUserService(input: RegisterBody): Promise<void> {
   await createUserWithProfile(email, username, hashedPassword);
 }
 
-export async function loginUserService(input: loginUserSchema): Promise<TokenSet> {
+export async function loginUserService(input: LoginBody): Promise<TokenSet> {
   const { email, password } = input;
   const userAuthRecord = await getUser(email);
 

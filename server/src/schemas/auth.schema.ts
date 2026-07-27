@@ -24,4 +24,4 @@ export const loginUserSchema = z.strictObject({
 });
 
 export type RegisterBody = z.infer<typeof registerUserSchema>;
-export type loginUserSchema = z.infer<typeof loginUserSchema>;
+export type LoginBody = z.infer<typeof loginUserSchema>;
