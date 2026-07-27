@@ -65,12 +65,12 @@ export async function loginUserService(input: LoginBody): Promise<TokenSet> {
   const jti = crypto.randomUUID();
 
   // If all is well, the user is logged on - send back JWT Token
-  const refreshToken = await createRefreshToken(user.id, jti);
+  const refreshToken = createRefreshToken(user.id, jti);
 
   // Time at the moment + 15 days
   const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
   await storeRefreshToken(jti, user.id, refreshTokenExpiry);
 
-  const accessToken = await createAccessToken(user.id);
+  const accessToken = createAccessToken(user.id);
   return { accessToken, refreshToken };
 }

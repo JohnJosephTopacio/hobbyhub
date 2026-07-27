@@ -3,7 +3,7 @@ import { env } from '../config/env.js';
 
 type UUID = `${string}-${string}-${string}-${string}-${string}`;
 
-export async function createRefreshToken(userId: number, jti: UUID) {
+export function createRefreshToken(userId: number, jti: UUID) {
   return jwt.sign(
     {
       sub: userId,
@@ -16,7 +16,7 @@ export async function createRefreshToken(userId: number, jti: UUID) {
   );
 }
 
-export async function createAccessToken(userId: number) {
+export function createAccessToken(userId: number) {
   return jwt.sign({ sub: userId }, env.JWT_ACCESS_SECRET, {
     expiresIn: '5m',
   });
