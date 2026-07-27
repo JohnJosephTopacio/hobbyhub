@@ -15,6 +15,7 @@ import {
   getUser,
   storeRefreshToken,
 } from '../repositories/auth.repository.js';
+import { createAccessToken, createRefreshToken } from './token.service.js';
 
 interface TokenSet {
   accessToken: string;
@@ -51,7 +52,8 @@ export async function loginUserService(input: loginUserSchema): Promise<TokenSet
     throw new EmailNotRegistered();
   }
 
-  const hashedPassword = userAuthRecord.rows[0].password;
+  const user = userAuthRecord.rows[0];
+  const hashedPassword = user.password;
 
   // Hash the incoming password and compare it to the hashed password in the database, if it does not match send an error
   const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
@@ -64,23 +66,12 @@ export async function loginUserService(input: loginUserSchema): Promise<TokenSet
   const jti = crypto.randomUUID();
 
   // If all is well, the user is logged on - send back JWT Token
-  const refreshToken = jwt.sign(
-    {
-      sub: userAuthRecord.rows[0]!.id,
-      jti,
-    },
-    env.JWT_REFRESH_SECRET,
-    { expiresIn: '15d' },
-  );
+  const refreshToken = await createRefreshToken(user.id);
 
   // Time at the moment + 15 days
   const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+  await storeRefreshToken(jti, user.id, refreshTokenExpiry);
 
-  await storeRefreshToken(jti, userAuthRecord.rows[0].id, refreshTokenExpiry);
-
-  const accessToken = jwt.sign({ sub: userAuthRecord.rows[0].id }, env.JWT_ACCESS_SECRET, {
-    expiresIn: '5m',
-  });
-
+  const accessToken = await createAccessToken(user.id);
   return { accessToken, refreshToken };
 }
