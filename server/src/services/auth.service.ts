@@ -1,20 +1,25 @@
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
+import { RegisterBody, LoginBody, RefreshTokenBody } from '../schemas/auth.schema.js';
+import { createAccessToken, createRefreshToken } from './token.service.js';
+import { RefreshPayload, isRefreshPayload } from '../types/auth.js';
+import pool from '../db/db.js';
 import {
   EmailRegistered,
   UsernameRegistered,
   EmailNotRegistered,
   IncorrectPassword,
 } from '../errors/index.js';
-import { RegisterBody, LoginBody } from '../schemas/auth.schema.js';
 import {
   userExistsByEmail,
   userExistsByUsername,
   createUserWithProfile,
   getUser,
   storeRefreshToken,
+  getRefreshTokenByJti,
+  updateInactiveToken,
 } from '../repositories/auth.repository.js';
-import { createAccessToken, createRefreshToken } from './token.service.js';
 
 interface TokenSet {
   accessToken: string;
@@ -73,4 +78,78 @@ export async function loginUserService(input: LoginBody): Promise<TokenSet> {
 
   const accessToken = createAccessToken(user.id);
   return { accessToken, refreshToken };
+}
+
+export async function refreshTokenService(refreshToken: RefreshTokenBody): Promise<TokenSet> {
+  let decoded: RefreshPayload;
+  try {
+    const verified = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+    if (isRefreshPayload(verified)) {
+      decoded = verified;
+    } else {
+      throw Error('Invalid Refresh Token Payload Shape');
+    }
+  } catch (error) {
+    throw error;
+  }
+
+  // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE
+  const tokenRecord = await getRefreshTokenByJti(decoded.jti);
+
+  if (tokenRecord.rows.length < 1) {
+    throw new Error('Refresh token does not match any token in the database.');
+  }
+
+  // CHECK IF TOKEN MATCHED IS NOT REVOKED
+  if (tokenRecord.rows[0]!.token_status === 'REVOKED') {
+    // TODO: log all user sessions, a malicious actor may be trying to get in
+
+    throw new Error('Refresh token has been revoked.');
+  }
+
+  // CHECK EXPIRY
+  if (tokenRecord.rows[0]!.expires_at < new Date()) {
+    throw new Error('Refresh Token has expired.');
+  }
+
+  const client = await pool.connect();
+  let newRefreshToken: string = '';
+
+  try {
+    // BEGIN TRANSACTION - note: Lock the row to handle race condition
+    await client.query('BEGIN');
+    // MAKE OLD REFRESH TOKEN INACTIVE
+    updateInactiveToken(decoded.jti, client);
+    // SIGN AND STORE NEW REFRESH TOKEN IN DATABASE
+    const jti = crypto.randomUUID();
+    newRefreshToken = jwt.sign(
+      {
+        sub: decoded.sub,
+        jti: jti,
+      },
+      env.JWT_REFRESH_SECRET,
+      { expiresIn: '15d' },
+    );
+
+    const expires_at = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+
+    storeRefreshToken(jti, Number(decoded.sub), expires_at);
+    // COMMIT
+    await client.query('COMMIT');
+  } catch (error) {
+    // ROLLBACK
+    await client.query('ROLLBACK');
+    throw error;
+  }
+
+  // RETURN NEW ACCESS TOKEN IN MEMORY AND NEW REFRESH TOKEN IN COOKIE
+  const accessToken = jwt.sign({ sub: decoded.sub }, env.JWT_ACCESS_SECRET, {
+    expiresIn: '5m',
+  });
+
+  if (newRefreshToken === '') {
+    throw new Error('New refresh token missing');
+  }
+
+  return { accessToken, refreshToken: newRefreshToken };
 }

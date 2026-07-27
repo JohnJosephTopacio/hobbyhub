@@ -1,21 +1,15 @@
 import type { Request, Response, NextFunction } from 'express';
-import jwt from 'jsonwebtoken';
-import crypto from 'node:crypto';
 import * as z from 'zod';
 
 import { env } from '../config/env.js';
-import pool from '../db/db.js';
 
-import { loginUserService, registerUserService } from '../services/auth.service.js';
-import { isRefreshPayload, RefreshPayload } from '../types/auth.js';
+import {
+  loginUserService,
+  refreshTokenService,
+  registerUserService,
+} from '../services/auth.service.js';
 import { registerUserSchema, loginUserSchema, refreshTokenSchema } from '../schemas/auth.schema.js';
 import { ValidationError } from '../errors/ValidationError.js';
-import {
-  storeRefreshToken,
-  getRefreshTokenByJti,
-  updateInactiveToken,
-} from '../repositories/auth.repository.js';
-import { NoTokenProvided } from '../errors/index.js';
 
 // Token and cookie expiry minutes
 const expiryDays = 15;
@@ -67,81 +61,12 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
 }
 
 export async function refreshToken(req: Request, res: Response, next: NextFunction) {
-  const refreshToken = refreshTokenSchema.parse(req.cookies.token);
-
-  let decoded: RefreshPayload;
-  try {
-    const verified = await jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
-    if (isRefreshPayload(verified)) {
-      decoded = verified;
-    } else {
-      throw Error('Invalid Refresh Token Payload Shape');
-    }
-  } catch (error) {
-    return next(error);
-  }
-
-  // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE
-  const tokenRecord = await getRefreshTokenByJti(decoded.jti);
-
-  if (tokenRecord.rows.length < 1) {
-    throw new Error('Refresh token does not match any token in the database.');
-  }
-
-  // CHECK IF TOKEN MATCHED IS NOT REVOKED
-  if (tokenRecord.rows[0]!.token_status === 'REVOKED') {
-    // TODO: log all user sessions, a malicious actor may be trying to get in
-
-    throw new Error('Refresh token has been revoked.');
-  }
-
-  // CHECK EXPIRY
-  if (tokenRecord.rows[0]!.expires_at < new Date()) {
-    throw new Error('Refresh Token has expired.');
-  }
-
-  const client = await pool.connect();
-  let newRefreshToken: string = '';
-
-  try {
-    // BEGIN TRANSACTION - note: Lock the row to handle race condition
-    await client.query('BEGIN');
-    // MAKE OLD REFRESH TOKEN INACTIVE
-    updateInactiveToken(decoded.jti, client);
-    // SIGN AND STORE NEW REFRESH TOKEN IN DATABASE
-    const jti = crypto.randomUUID();
-    newRefreshToken = jwt.sign(
-      {
-        sub: decoded.sub,
-        jti: jti,
-      },
-      env.JWT_REFRESH_SECRET,
-      { expiresIn: '15d' },
-    );
-
-    const expires_at = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
-
-    storeRefreshToken(jti, Number(decoded.sub), expires_at);
-    // COMMIT
-    await client.query('COMMIT');
-  } catch (error) {
-    // ROLLBACK
-    await client.query('ROLLBACK');
-    next(error);
-  }
-
-  // RETURN NEW ACCESS TOKEN IN MEMORY AND NEW REFRESH TOKEN IN COOKIE
-  const accessToken = jwt.sign({ sub: decoded.sub }, env.JWT_ACCESS_SECRET, {
-    expiresIn: '5m',
-  });
-
-  if (newRefreshToken === '') {
-    next(new Error('New refresh token missing'));
-  }
+  const refreshTokenBody = refreshTokenSchema.parse(req.cookies.token);
+  const { accessToken, refreshToken } = await refreshTokenService(refreshTokenBody);
 
   res
     .status(200)
-    .cookie('token', newRefreshToken, {
+    .cookie('token', refreshToken, {
       // The first number is how many minutes the expression equates to
       maxAge: expiryDays * 1000 * 60 * 60 * 24,
       httpOnly: true,
