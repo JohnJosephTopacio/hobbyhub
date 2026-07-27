@@ -1,9 +1,9 @@
 import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 
-export async function createRefreshToken(userId: number) {
-  // JTI means JWT ID
-  const jti = crypto.randomUUID();
+type UUID = `${string}-${string}-${string}-${string}-${string}`;
+
+export async function createRefreshToken(userId: number, jti: UUID) {
   return jwt.sign(
     {
       sub: userId,
