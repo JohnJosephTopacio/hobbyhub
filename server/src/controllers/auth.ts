@@ -8,7 +8,7 @@ import pool from '../db/db.js';
 
 import { loginUserService, registerUserService } from '../services/auth.service.js';
 import { isRefreshPayload, RefreshPayload } from '../types/auth.js';
-import { registerUserSchema, loginUserSchema } from '../schemas/auth.schema.js';
+import { registerUserSchema, loginUserSchema, refreshTokenSchema } from '../schemas/auth.schema.js';
 import { ValidationError } from '../errors/ValidationError.js';
 import {
   storeRefreshToken,
@@ -67,7 +67,7 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
 }
 
 export async function refreshToken(req: Request, res: Response, next: NextFunction) {
-  const refreshToken: string | undefined = req.cookies.token;
+  const refreshToken = refreshTokenSchema.parse(req.cookies.token);
   if (!refreshToken) {
     throw new NoTokenProvided();
   }
