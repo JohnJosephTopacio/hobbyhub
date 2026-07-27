@@ -61,16 +61,13 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
         message: 'User has logged in',
         accessToken: accessToken,
       });
-  } catch (err) {
-    next(err);
+  } catch (error) {
+    next(error);
   }
 }
 
 export async function refreshToken(req: Request, res: Response, next: NextFunction) {
   const refreshToken = refreshTokenSchema.parse(req.cookies.token);
-  if (!refreshToken) {
-    throw new NoTokenProvided();
-  }
 
   let decoded: RefreshPayload;
   try {
@@ -80,8 +77,8 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
     } else {
       throw Error('Invalid Refresh Token Payload Shape');
     }
-  } catch (err) {
-    return next(err);
+  } catch (error) {
+    return next(error);
   }
 
   // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE
