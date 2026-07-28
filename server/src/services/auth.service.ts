@@ -136,7 +136,7 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
 
     const expires_at = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
-    await storeRefreshToken(jti, Number(decoded.sub), expires_at);
+    await storeRefreshToken(jti, Number(decoded.sub), expires_at, client);
     // COMMIT
     await client.query('COMMIT');
   } catch (error) {
