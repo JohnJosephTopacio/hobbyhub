@@ -68,9 +68,10 @@ export async function loginUserService(input: LoginBody): Promise<TokenSet> {
 
   // JTI means JWT ID
   const jti = crypto.randomUUID();
+  const sub = user.id.toString();
 
   // If all is well, the user is logged on - send back JWT Token
-  const refreshToken = createRefreshToken(user.id, jti);
+  const refreshToken = createRefreshToken(sub, jti);
 
   // Time at the moment + 15 days
   const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
@@ -122,6 +123,9 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     updateInactiveToken(decoded.jti, client);
     // SIGN AND STORE NEW REFRESH TOKEN IN DATABASE
     const jti = crypto.randomUUID();
+
+    newRefreshToken = createRefreshToken(decoded.sub, jti);
+
     newRefreshToken = jwt.sign(
       {
         sub: decoded.sub,

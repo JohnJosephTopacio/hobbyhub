@@ -3,7 +3,7 @@ import { env } from '../config/env.js';
 
 type UUID = `${string}-${string}-${string}-${string}-${string}`;
 
-export function createRefreshToken(userId: number, jti: UUID) {
+export function createRefreshToken(userId: string, jti: UUID) {
   return jwt.sign(
     {
       sub: userId,
