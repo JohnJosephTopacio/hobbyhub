@@ -74,7 +74,7 @@ export function getUser(email: string) {
 }
 
 export function getUserInfo(userId: number) {
-  return pool.query<UserInfo>('SELECT username, email, created_at FROM users WHERE id=$1', [
+  return pool.query<UserInfo>('SELECT username, email, created_at FROM users WHERE id = $1', [
     userId,
   ]);
 }
