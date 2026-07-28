@@ -83,16 +83,13 @@ export async function loginUserService(input: LoginBody): Promise<TokenSet> {
 
 export async function refreshTokenService(refreshToken: RefreshTokenBody): Promise<TokenSet> {
   let decoded: RefreshPayload;
-  try {
-    const verified = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
-    if (isRefreshPayload(verified)) {
-      decoded = verified;
-    } else {
-      throw Error('Invalid Refresh Token Payload Shape');
-    }
-  } catch (error) {
-    throw error;
+  const verified = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+  if (isRefreshPayload(verified)) {
+    decoded = verified;
+  } else {
+    throw Error('Invalid Refresh Token Payload Shape');
   }
+
   // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE
   const tokenRecord = await getRefreshTokenByJti(decoded.jti);
 
