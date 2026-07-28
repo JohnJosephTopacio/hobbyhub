@@ -125,15 +125,6 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
 
     newRefreshToken = createRefreshToken(decoded.sub, jti);
 
-    newRefreshToken = jwt.sign(
-      {
-        sub: decoded.sub,
-        jti: jti,
-      },
-      env.JWT_REFRESH_SECRET,
-      { expiresIn: '15d' },
-    );
-
     const expires_at = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
     await storeRefreshToken(jti, Number(decoded.sub), expires_at, client);
