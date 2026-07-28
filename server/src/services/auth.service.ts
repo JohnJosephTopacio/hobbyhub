@@ -134,6 +134,8 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     // ROLLBACK
     await client.query('ROLLBACK');
     throw error;
+  } finally {
+    client.release();
   }
 
   // RETURN NEW ACCESS TOKEN IN MEMORY AND NEW REFRESH TOKEN IN COOKIE
