@@ -90,29 +90,28 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     throw Error('Invalid Refresh Token Payload Shape');
   }
 
-  // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE
-  const tokenRecord = await getRefreshTokenByJti(decoded.jti);
-
-  if (tokenRecord.rows.length < 1) {
-    throw new Error('Refresh token does not match any token in the database.');
-  }
-
-  // CHECK IF TOKEN MATCHED IS NOT REVOKED
-  if (tokenRecord.rows[0]!.token_status === 'REVOKED') {
-    // TODO: log all user sessions, a malicious actor may be trying to get in
-
-    throw new Error('Refresh token has been revoked.');
-  }
-
-  // CHECK EXPIRY
-  if (tokenRecord.rows[0]!.expires_at < new Date()) {
-    throw new Error('Refresh Token has expired.');
-  }
-
   const client = await pool.connect();
   let newRefreshToken: string = '';
 
   try {
+    // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE
+    const tokenRecord = await getRefreshTokenByJti(decoded.jti);
+
+    if (tokenRecord.rows.length < 1) {
+      throw new Error('Refresh token does not match any token in the database.');
+    }
+
+    // CHECK IF TOKEN MATCHED IS NOT REVOKED
+    if (tokenRecord.rows[0]!.token_status === 'REVOKED') {
+      // TODO: log all user sessions, a malicious actor may be trying to get in
+
+      throw new Error('Refresh token has been revoked.');
+    }
+
+    // CHECK EXPIRY
+    if (tokenRecord.rows[0]!.expires_at < new Date()) {
+      throw new Error('Refresh Token has expired.');
+    }
     // BEGIN TRANSACTION - note: Lock the row to handle race condition
     await client.query('BEGIN');
     // MAKE OLD REFRESH TOKEN INACTIVE
