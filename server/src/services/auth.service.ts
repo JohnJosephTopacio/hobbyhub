@@ -95,7 +95,7 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
 
   try {
     // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE
-    const tokenRecord = await getRefreshTokenByJti(decoded.jti);
+    const tokenRecord = await getRefreshTokenByJti(decoded.jti, client);
 
     if (tokenRecord.rows.length < 1) {
       throw new Error('Refresh token does not match any token in the database.');
