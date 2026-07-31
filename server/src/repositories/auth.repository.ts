@@ -103,7 +103,7 @@ export function storeRefreshToken(
 
 export function getRefreshTokenByJti(jti: string, client: PoolClient) {
   return client.query<RefreshToken>(
-    'SELECT jti, user_id, expires_at, token_status FROM auth_sessions WHERE jti = $1',
+    'SELECT jti, user_id, expires_at, token_status FROM auth_sessions WHERE jti = $1 FOR UPDATE',
     [jti],
   );
 }

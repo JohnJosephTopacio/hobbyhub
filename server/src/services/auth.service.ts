@@ -94,7 +94,10 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
   let newRefreshToken: string = '';
 
   try {
-    // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE
+    // BEGIN TRANSACTION
+    await client.query('BEGIN');
+
+    // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE AND LOCKS THE ROW
     const tokenRecord = await getRefreshTokenByJti(decoded.jti, client);
 
     if (tokenRecord.rows.length < 1) {
@@ -112,8 +115,6 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     if (tokenRecord.rows[0]!.expires_at < new Date()) {
       throw new Error('Refresh Token has expired.');
     }
-    // BEGIN TRANSACTION - note: Lock the row to handle race condition
-    await client.query('BEGIN');
     // MAKE OLD REFRESH TOKEN INACTIVE
     await updateInactiveToken(decoded.jti, client);
     // SIGN AND STORE NEW REFRESH TOKEN IN DATABASE
