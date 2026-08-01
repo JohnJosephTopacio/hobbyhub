@@ -91,13 +91,13 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
   }
 
   const client = await pool.connect();
-  let newRefreshToken: string = '';
+  let newRefreshToken: string;
 
   try {
     // BEGIN TRANSACTION
     await client.query('BEGIN');
 
-    // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE AND LOCKS THE ROW
+    // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE AND LOCK THE ROW
     const tokenRecord = await getRefreshTokenByJti(decoded.jti, client);
 
     if (tokenRecord.rows.length < 1) {
@@ -136,9 +136,7 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
   }
 
   // RETURN NEW ACCESS TOKEN IN MEMORY AND NEW REFRESH TOKEN IN COOKIE
-  const accessToken = jwt.sign({ sub: decoded.sub }, env.JWT_ACCESS_SECRET, {
-    expiresIn: '5m',
-  });
+  const accessToken = createAccessToken(Number(decoded.sub));
 
   if (newRefreshToken === '') {
     throw new Error('New refresh token missing');
