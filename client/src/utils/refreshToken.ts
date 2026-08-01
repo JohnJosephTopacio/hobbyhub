@@ -1,5 +1,5 @@
-import { setAccessToken } from "./accessToken";
-import { instance } from "./axiosInstance";
+import { setAccessToken } from './accessToken';
+import { instance } from './axiosInstance';
 
 export async function refreshToken(): Promise<string> {
   const response = await instance.get('/auth/refresh');

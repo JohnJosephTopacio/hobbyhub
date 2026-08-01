@@ -1,7 +1,7 @@
 let accessToken: string | null = null;
 
 export function setAccessToken(token: string | null) {
-  return accessToken = token;
+  return (accessToken = token);
 }
 
 export function getAccessToken() {

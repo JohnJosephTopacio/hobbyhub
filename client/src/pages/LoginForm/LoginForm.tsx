@@ -1,13 +1,13 @@
-import '@/pages/LoginForm/LoginForm.css'
-import { useNavigate } from 'react-router'
-import { useState } from 'react'
-import { useAuth } from '@/context/AuthContext'
-import { instance } from '@/utils/axiosInstance'
-import { handleAxiosError } from '@/utils/axiosErrorHandler'
+import '@/pages/LoginForm/LoginForm.css';
+import { useNavigate } from 'react-router';
+import { useState } from 'react';
+import { useAuth } from '@/context/AuthContext';
+import { instance } from '@/utils/axiosInstance';
+import { handleAxiosError } from '@/utils/axiosErrorHandler';
 
 interface loginResponse {
-  message: string,
-  accessToken: string
+  message: string;
+  accessToken: string;
 }
 
 function LoginForm() {
@@ -16,7 +16,7 @@ function LoginForm() {
   const [resultMessage, setResultMessage] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  
+
   const navigate = useNavigate();
 
   const auth = useAuth();
@@ -29,20 +29,19 @@ function LoginForm() {
     }
 
     setIsLoading(true);
-    
+
     try {
-      const response = await instance
-      .post<loginResponse>('auth/login', {
+      const response = await instance.post<loginResponse>('auth/login', {
         email,
-        password
+        password,
       });
 
-      setToken(response.data.accessToken); 
+      setToken(response.data.accessToken);
       setIsSuccess(true);
       setResultMessage('Successful Logon!');
 
       navigate('/home');
-    } catch(error) {
+    } catch (error) {
       setIsSuccess(false);
       setResultMessage(handleAxiosError(error));
     } finally {
@@ -53,14 +52,36 @@ function LoginForm() {
   return (
     <form className="login-form" onSubmit={formHandler}>
       <label htmlFor="email">Email: </label>
-      <input type="email" placeholder="Email" name="email" id="email" value={email} onChange={(e) => {setEmail(e.target.value)}}/>
+      <input
+        type="email"
+        placeholder="Email"
+        name="email"
+        id="email"
+        value={email}
+        onChange={(e) => {
+          setEmail(e.target.value);
+        }}
+      />
 
       <label htmlFor="password">Password: </label>
-      <input type="password" placeholder="Password" name="password" id="password" value={password} onChange={(e) => {setPassword(e.target.value)}}/>
+      <input
+        type="password"
+        placeholder="Password"
+        name="password"
+        id="password"
+        value={password}
+        onChange={(e) => {
+          setPassword(e.target.value);
+        }}
+      />
 
-      <button type="submit" disabled={isLoading}>Submit</button>
+      <button type="submit" disabled={isLoading}>
+        Submit
+      </button>
 
-      {resultMessage && <p className={isSuccess ? "success-message" : "error-message"}>{resultMessage}</p>}
+      {resultMessage && (
+        <p className={isSuccess ? 'success-message' : 'error-message'}>{resultMessage}</p>
+      )}
     </form>
   );
 }
