@@ -12,11 +12,13 @@ export interface UserInfo {
   created_at: Date;
 }
 
+type TokenStatus = 'ACTIVE' | 'ROTATED' | 'REVOKED';
+
 export interface RefreshToken {
   jti: string;
   user_id: number;
   expires_at: Date;
-  token_status: string;
+  token_status: TokenStatus;
 }
 
 export async function userExistsByEmail(email: string): Promise<boolean> {
