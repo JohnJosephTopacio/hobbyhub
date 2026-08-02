@@ -10,7 +10,7 @@ interface Result {
 interface UserInfo {
   username: string;
   email: string;
-  created_at: Date;
+  createdAt: Date;
 }
 
 function Home() {

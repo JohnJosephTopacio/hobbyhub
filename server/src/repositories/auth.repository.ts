@@ -9,16 +9,16 @@ interface UserAuthRow {
 export interface UserInfo {
   username: string;
   email: string;
-  created_at: Date;
+  createdAt: Date;
 }
 
 type TokenStatus = 'ACTIVE' | 'ROTATED' | 'REVOKED';
 
 export interface RefreshToken {
   jti: string;
-  user_id: number;
-  expires_at: Date;
-  token_status: TokenStatus;
+  userId: number;
+  expiresAt: Date;
+  tokenStatus: TokenStatus;
 }
 
 export async function userExistsByEmail(email: string): Promise<boolean> {
@@ -85,21 +85,21 @@ export function getUserInfo(userId: number) {
 export function storeRefreshToken(
   jti: string,
   userId: number,
-  expires_at: Date,
+  expiresAt: Date,
   client?: PoolClient,
 ) {
   if (!client) {
     return pool.query('INSERT INTO auth_sessions (jti, user_id, expires_at) VALUES ($1, $2, $3)', [
       jti,
       userId,
-      expires_at,
+      expiresAt,
     ]);
   }
 
   return client.query('INSERT INTO auth_sessions (jti, user_id, expires_at) VALUES ($1, $2, $3)', [
     jti,
     userId,
-    expires_at,
+    expiresAt,
   ]);
 }
 

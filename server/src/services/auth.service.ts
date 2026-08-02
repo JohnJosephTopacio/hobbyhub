@@ -105,14 +105,14 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     }
 
     // CHECK IF TOKEN MATCHED IS NOT REVOKED
-    if (tokenRecord.rows[0]!.token_status === 'REVOKED') {
+    if (tokenRecord.rows[0]!.tokenStatus === 'REVOKED') {
       // TODO: log all user sessions, a malicious actor may be trying to get in
 
       throw new Error('Refresh token has been revoked.');
     }
 
     // CHECK EXPIRY
-    if (tokenRecord.rows[0]!.expires_at < new Date()) {
+    if (tokenRecord.rows[0]!.expiresAt < new Date()) {
       throw new Error('Refresh Token has expired.');
     }
     // MAKE OLD REFRESH TOKEN INACTIVE
@@ -122,9 +122,9 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
 
     newRefreshToken = createRefreshToken(decoded.sub, jti);
 
-    const expires_at = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+    const expiresAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
-    await storeRefreshToken(jti, Number(decoded.sub), expires_at, client);
+    await storeRefreshToken(jti, Number(decoded.sub), expiresAt, client);
     // COMMIT
     await client.query('COMMIT');
   } catch (error) {
