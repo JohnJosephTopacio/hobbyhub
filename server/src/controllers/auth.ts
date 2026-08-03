@@ -14,6 +14,8 @@ import { ValidationError } from '../errors/ValidationError.js';
 // Token and cookie expiry minutes
 const expiryDays = 15;
 
+const REFRESH_COOKIE_PATH = '/auth/refresh';
+
 export async function registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
   try {
     const input = registerUserSchema.parse(req.body);
@@ -49,7 +51,7 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
         // This needs to be revisited in the deployment phase for cross-site requests
         sameSite: 'strict',
         secure: env.NODE_ENV === 'production',
-        path: '/auth/refresh',
+        path: REFRESH_COOKIE_PATH,
       })
       .json({
         message: 'User has logged in',
@@ -73,7 +75,7 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
       // This needs to be revisited in the deployment phase for cross-site requests
       sameSite: 'strict',
       secure: env.NODE_ENV === 'production',
-      path: '/auth/refresh',
+      path: REFRESH_COOKIE_PATH,
     })
     .json({ accessToken });
 }
