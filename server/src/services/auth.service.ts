@@ -18,7 +18,7 @@ import {
   getUser,
   storeRefreshToken,
   getRefreshTokenByJti,
-  updateInactiveToken,
+  rotateToken,
 } from '../repositories/auth.repository.js';
 
 interface TokenSet {
@@ -120,7 +120,7 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     // TODO: Add check for rotated tokens
 
     // Update the refresh token's status to rotated
-    await updateInactiveToken(decoded.jti, client);
+    await rotateToken(decoded.jti, client);
 
     // Create new refresh token
     const jti = crypto.randomUUID();

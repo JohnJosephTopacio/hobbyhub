@@ -110,7 +110,7 @@ export function getRefreshTokenByJti(jti: string, client: PoolClient) {
   );
 }
 
-export function updateInactiveToken(jti: string, client: PoolClient) {
+export function rotateToken(jti: string, client: PoolClient) {
   return client.query('UPDATE auth_sessions SET token_status = $1 WHERE jti = $2', [
     'ROTATED',
     jti,
