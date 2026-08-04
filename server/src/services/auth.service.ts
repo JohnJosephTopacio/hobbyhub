@@ -93,54 +93,53 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
   const client = await pool.connect();
   let newRefreshToken: string;
 
+  // Refresh Token Rotation Transaction
   try {
-    // BEGIN TRANSACTION
     await client.query('BEGIN');
 
-    // CHECK IF REFRESH TOKEN MATCHES ANY REFRESH TOKEN IN THE DATABASE AND LOCK THE ROW
+    // Retrieve matching refresh token
     const tokenRecord = await getRefreshTokenByJti(decoded.jti, client);
 
+    // Check if refresh token is in the database
     if (tokenRecord.rows.length < 1) {
       throw new Error('Refresh token does not match any token in the database.');
     }
 
-    // CHECK IF TOKEN MATCHED IS NOT REVOKED
+    // Check if refresh token is revoked
     if (tokenRecord.rows[0]!.tokenStatus === 'REVOKED') {
       // TODO: log all user sessions, a malicious actor may be trying to get in
 
       throw new Error('Refresh token has been revoked.');
     }
 
-    // CHECK EXPIRY
+    // Check if refresh token is expired
     if (tokenRecord.rows[0]!.expiresAt < new Date()) {
       throw new Error('Refresh Token has expired.');
     }
-    // MAKE OLD REFRESH TOKEN INACTIVE
+
+    // TODO: Add check for rotated tokens
+
+    // Update the refresh token's status to rotated
     await updateInactiveToken(decoded.jti, client);
-    // SIGN AND STORE NEW REFRESH TOKEN IN DATABASE
+
+    // Create new refresh token
     const jti = crypto.randomUUID();
-
     newRefreshToken = createRefreshToken(decoded.sub, jti);
-
     const expiresAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
+    // Store the new refresh token in database
     await storeRefreshToken(jti, Number(decoded.sub), expiresAt, client);
-    // COMMIT
+
     await client.query('COMMIT');
   } catch (error) {
-    // ROLLBACK
     await client.query('ROLLBACK');
     throw error;
   } finally {
     client.release();
   }
 
-  // RETURN NEW ACCESS TOKEN IN MEMORY AND NEW REFRESH TOKEN IN COOKIE
-  const accessToken = createAccessToken(Number(decoded.sub));
+  // Create new access token
+  const newAccessToken = createAccessToken(Number(decoded.sub));
 
-  if (newRefreshToken === '') {
-    throw new Error('New refresh token missing');
-  }
-
-  return { accessToken, refreshToken: newRefreshToken };
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 }
