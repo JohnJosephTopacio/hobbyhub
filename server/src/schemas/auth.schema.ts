@@ -25,6 +25,11 @@ export const loginUserSchema = z.strictObject({
 
 export const refreshTokenSchema = z.string('Invalid Token Format');
 
+export const accessTokenPayloadSchema = z.object({
+  sub: z.string(),
+});
+
 export type RegisterBody = z.infer<typeof registerUserSchema>;
 export type LoginBody = z.infer<typeof loginUserSchema>;
 export type RefreshTokenBody = z.infer<typeof refreshTokenSchema>;
+export type AccessTokenPayload = z.infer<typeof accessTokenPayloadSchema>;
