@@ -24,6 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isAuthenticated = localAccessToken !== null;
 
+  // Stores object in memory cache so as not to trigger a rerender of every component that consumes the context when AuthProvider re-renders.
   const value = useMemo(
     () => ({ localAccessToken, setToken, resetToken, isAuthenticated }),
     [localAccessToken, setToken, resetToken, isAuthenticated],
