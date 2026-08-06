@@ -14,12 +14,9 @@ interface UserInfo {
 }
 
 function Home() {
-  // generic type parameters are used to derive the return type
   const [result, setResult] = useState<Result | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  // const auth = useAuth();
-  // const accessToken = auth.accessToken;
 
   useEffect(() => {
     async function fetchUserData() {
