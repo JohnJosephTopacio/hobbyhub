@@ -12,9 +12,9 @@ if (root === null) {
 }
 
 createRoot(root).render(
-  <AuthProvider>
-    <StrictMode>
+  <StrictMode>
+    <AuthProvider>
       <RouterProvider router={router} />
-    </StrictMode>
-  </AuthProvider>,
+    </AuthProvider>
+  </StrictMode>,
 );
