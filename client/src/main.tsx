@@ -3,11 +3,8 @@ import { createRoot } from 'react-dom/client';
 import { RouterProvider } from 'react-router';
 import { router } from '@/router';
 import { AuthProvider } from './contexts/AuthContext';
+import { env } from '@/config/env';
 import './index.css';
-
-if (!import.meta.env.VITE_BACKEND_SERVER_URL) {
-  throw new Error('Backend Server URL not configured.');
-}
 
 const root = document.getElementById('root');
 if (root === null) {
