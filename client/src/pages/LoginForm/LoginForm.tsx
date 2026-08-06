@@ -1,7 +1,7 @@
 import '@/pages/LoginForm/LoginForm.css';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { instance } from '@/utils/axiosInstance';
 import { handleAxiosError } from '@/utils/axiosErrorHandler';
 
