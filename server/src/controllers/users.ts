@@ -1,6 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
-import { getUserInfo } from '../repositories/auth.repository.js';
-import { CouldNotFetchUser, UserNotFound } from '../errors/index.js';
+import { getUserService } from '../services/user.service.js';
 
 export async function getUserInformation(req: Request, res: Response, next: NextFunction) {
   try {
@@ -8,18 +7,8 @@ export async function getUserInformation(req: Request, res: Response, next: Next
       throw Error('Missing req.user object.');
     }
 
-    const userId: number = Number(req.user.sub);
-    let user;
-    try {
-      user = await getUserInfo(userId);
-    } catch (err) {
-      console.error(err);
-      throw new CouldNotFetchUser();
-    }
-
-    if (!user.rows[0]) {
-      throw new UserNotFound();
-    }
+    const userId = Number(req.user.sub);
+    const user = await getUserService(userId);
 
     res.status(200).json(user.rows[0]);
   } catch (err) {
