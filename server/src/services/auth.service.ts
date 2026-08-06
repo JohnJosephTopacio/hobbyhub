@@ -77,7 +77,7 @@ export async function loginUserService(input: LoginBody): Promise<TokenSet> {
   const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
   await storeRefreshToken(jti, user.id, refreshTokenExpiry);
 
-  const accessToken = createAccessToken(user.id);
+  const accessToken = createAccessToken(sub);
   return { accessToken, refreshToken };
 }
 
@@ -139,7 +139,7 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
   }
 
   // Create new access token
-  const newAccessToken = createAccessToken(Number(decoded.sub));
+  const newAccessToken = createAccessToken(decoded.sub);
 
   return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 }

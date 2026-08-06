@@ -16,7 +16,7 @@ export function createRefreshToken(userId: string, jti: UUID) {
   );
 }
 
-export function createAccessToken(userId: number) {
+export function createAccessToken(userId: string) {
   return jwt.sign({ sub: userId }, env.JWT_ACCESS_SECRET, {
     expiresIn: '5m',
   });
