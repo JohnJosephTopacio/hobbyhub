@@ -1,5 +1,5 @@
 import { createContext, useState, useContext, useCallback, useMemo } from 'react';
-import { setAccessToken } from '@/utils/accessToken';
+import { setAccessToken } from '@/auth/accessToken';
 type AuthContextType = {
   localAccessToken: string | null;
   setToken: (token: string) => void;

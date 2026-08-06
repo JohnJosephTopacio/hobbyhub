@@ -1,7 +1,7 @@
 import axios, { AxiosError, isAxiosError } from 'axios';
-import { getAccessToken } from './accessToken';
+import { getAccessToken } from '../auth/accessToken';
 import { handleAxiosError } from './axiosErrorHandler';
-import { refreshToken } from './refreshToken';
+import { refreshToken } from '../auth/refreshToken';
 
 interface ErrorResponse {
   message: string;
