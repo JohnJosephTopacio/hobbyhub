@@ -22,12 +22,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setAccessToken(null);
   }, []);
 
-  const isAuthenticated = localAccessToken !== null;
-
-  // Stores object in memory cache so as not to trigger a rerender of every component that consumes the context when AuthProvider re-renders.
+  // Stores object in memory cache so as not to unnecessarily trigger a rerender of every component that consumes the context when AuthProvider re-renders.
   const value = useMemo(
-    () => ({ localAccessToken, setToken, resetToken, isAuthenticated }),
-    [localAccessToken, setToken, resetToken, isAuthenticated],
+    () => ({ localAccessToken, setToken, resetToken, isAuthenticated: localAccessToken !== null }),
+    [localAccessToken, setToken, resetToken],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
