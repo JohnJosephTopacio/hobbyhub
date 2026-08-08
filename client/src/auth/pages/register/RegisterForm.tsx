@@ -3,10 +3,7 @@ import { useState } from 'react';
 import { instance } from '@/utils/axiosInstance';
 import { useNavigate } from 'react-router';
 import { handleAxiosError } from '@/utils/axiosErrorHandler';
-
-interface RegisterResponse {
-  message: string;
-}
+import { register } from '@/auth/api/auth';
 
 const regex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
 
@@ -45,11 +42,7 @@ function SignUpForm() {
     setIsLoading(true);
 
     try {
-      const response = await instance.post<RegisterResponse>('auth/register', {
-        email,
-        username,
-        password,
-      });
+      const response = await register({ email, username, password });
       setIsSuccess(true);
 
       // Clear the input fields in the UI
