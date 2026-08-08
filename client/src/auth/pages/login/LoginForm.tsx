@@ -1,4 +1,4 @@
-import '@/pages/LoginForm/LoginForm.css';
+import '@/auth/pages/login/LoginForm.css';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
