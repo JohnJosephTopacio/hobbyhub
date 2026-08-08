@@ -9,7 +9,7 @@ export const router = createBrowserRouter([
     Component: RootLayout,
     children: [
       {
-        path: 'signup',
+        path: 'register',
         Component: Register,
       },
       {
