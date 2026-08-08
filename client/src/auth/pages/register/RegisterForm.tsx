@@ -85,9 +85,7 @@ function RegisterForm() {
         name="username"
         id="username"
         value={username}
-        onChange={(e) => {
-          setUsername(e.target.value);
-        }}
+        onChange={(e) => setUsername(e.target.value)}
       />
 
       <label htmlFor="password">Password: </label>
@@ -97,9 +95,7 @@ function RegisterForm() {
         name="password"
         id="password"
         value={password}
-        onChange={(e) => {
-          setPassword(e.target.value);
-        }}
+        onChange={(e) => setPassword(e.target.value)}
       />
 
       <label htmlFor="confirmation-password">Confirm Password: </label>
@@ -109,9 +105,7 @@ function RegisterForm() {
         name="confirmationPassword"
         id="confirmation-password"
         value={confirmationPassword}
-        onChange={(e) => {
-          setConfirmationPassword(e.target.value);
-        }}
+        onChange={(e) => setConfirmationPassword(e.target.value)}
       />
 
       <button type="submit" disabled={isLoading}>
