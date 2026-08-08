@@ -4,11 +4,7 @@ import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { instance } from '@/utils/axiosInstance';
 import { handleAxiosError } from '@/utils/axiosErrorHandler';
-
-interface loginResponse {
-  message: string;
-  accessToken: string;
-}
+import { login } from '@/auth/api/auth';
 
 function LoginForm() {
   const [email, setEmail] = useState('');
@@ -31,10 +27,7 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      const response = await instance.post<loginResponse>('auth/login', {
-        email,
-        password,
-      });
+      const response = await login({ email, password });
 
       setToken(response.data.accessToken);
       setIsSuccess(true);

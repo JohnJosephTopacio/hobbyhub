@@ -11,5 +11,19 @@ interface RegisterRequest {
 }
 
 export async function register(input: RegisterRequest) {
-  return await instance.post<RegisterResponse>('auth/register', input);
+  return instance.post<RegisterResponse>('auth/register', input);
+}
+
+interface LoginResponse {
+  message: string;
+  accessToken: string;
+}
+
+interface LoginRequest {
+  email: string;
+  password: string;
+}
+
+export async function login(input: LoginRequest) {
+  return await instance.post<LoginResponse>('auth/login', input);
 }
