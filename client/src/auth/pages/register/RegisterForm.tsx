@@ -1,13 +1,12 @@
-import '@/pages/SignUpForm/SignUpForm.css';
+import '@/auth/pages/register/RegisterForm.css';
 import { useState } from 'react';
-import { instance } from '@/utils/axiosInstance';
 import { useNavigate } from 'react-router';
 import { handleAxiosError } from '@/utils/axiosErrorHandler';
 import { register } from '@/auth/api/auth';
 
 const regex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
 
-function SignUpForm() {
+function RegisterForm() {
   const [email, setEmail] = useState('');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -126,4 +125,4 @@ function SignUpForm() {
   );
 }
 
-export default SignUpForm;
+export default RegisterForm;
