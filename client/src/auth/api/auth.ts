@@ -11,7 +11,8 @@ interface RegisterRequest {
 }
 
 export async function register(input: RegisterRequest) {
-  return instance.post<RegisterResponse>('auth/register', input);
+  const response = await instance.post<RegisterResponse>('auth/register', input);
+  return response.data;
 }
 
 interface LoginResponse {
@@ -25,5 +26,6 @@ interface LoginRequest {
 }
 
 export async function login(input: LoginRequest) {
-  return await instance.post<LoginResponse>('auth/login', input);
+  const response = await instance.post<LoginResponse>('auth/login', input);
+  return response.data;
 }

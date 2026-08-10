@@ -41,7 +41,7 @@ function RegisterForm() {
     setIsLoading(true);
 
     try {
-      const response = await register({ email, username, password });
+      const { message } = await register({ email, username, password });
       setIsSuccess(true);
 
       // Clear the input fields in the UI
@@ -51,7 +51,7 @@ function RegisterForm() {
       setConfirmationPassword('');
 
       // Notify user of redirection then redirect
-      setResultMessage(response.data.message + ' Redirecting to login');
+      setResultMessage(message + ' Redirecting to login');
       setTimeout(() => {
         navigate('/login');
       }, 1500);

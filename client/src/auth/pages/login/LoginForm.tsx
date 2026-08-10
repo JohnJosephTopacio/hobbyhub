@@ -2,7 +2,6 @@ import '@/auth/pages/login/LoginForm.css';
 import { useNavigate } from 'react-router';
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
-import { instance } from '@/utils/axiosInstance';
 import { handleAxiosError } from '@/utils/axiosErrorHandler';
 import { login } from '@/auth/api/auth';
 
@@ -27,9 +26,9 @@ function LoginForm() {
     setIsLoading(true);
 
     try {
-      const response = await login({ email, password });
+      const { accessToken } = await login({ email, password });
 
-      setToken(response.data.accessToken);
+      setToken(accessToken);
       setIsSuccess(true);
       setResultMessage('Successful Logon!');
 
