@@ -6,12 +6,6 @@ interface UserAuthRow {
   password: string;
 }
 
-export interface UserInfo {
-  username: string;
-  email: string;
-  createdAt: Date;
-}
-
 type TokenStatus = 'ACTIVE' | 'ROTATED' | 'REVOKED';
 
 export interface RefreshToken {
@@ -73,12 +67,6 @@ export async function createUserWithProfile(
 
 export function getUser(email: string) {
   return pool.query<UserAuthRow>('SELECT id, password FROM users WHERE email = $1', [email]);
-}
-
-export function getUserInfo(userId: number) {
-  return pool.query<UserInfo>('SELECT username, email, created_at FROM users WHERE id = $1', [
-    userId,
-  ]);
 }
 
 // Postgres driver auto-converts Date object to UTC which fits TIMESTAMPTZ

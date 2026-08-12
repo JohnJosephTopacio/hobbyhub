@@ -1,4 +1,4 @@
-import { getUserInfo } from '../repositories/auth.repository.js';
+import { getUserInfo } from '../repositories/users.repository.js';
 import { CouldNotFetchUser, UserNotFound } from '../errors/index.js';
 
 export async function getUserService(userId: number) {
