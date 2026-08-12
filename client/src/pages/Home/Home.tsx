@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router';
 import { useState, useEffect } from 'react';
-import { instance, isAxiosError } from '@/utils/axiosInstance';
+import { authInstance, isAxiosError } from '@/utils/axiosInstance';
 import { handleAxiosError } from '@/utils/axiosErrorHandler';
 
 interface Result {
@@ -21,7 +21,7 @@ function Home() {
   useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await instance.get<UserInfo>('users/me');
+        const response = await authInstance.get<UserInfo>('users/me');
 
         if (response.statusText !== 'OK') {
           throw new Error('Failed to fetch user');
@@ -36,6 +36,9 @@ function Home() {
             return;
           }
         }
+
+        navigate('/login');
+        return;
       } finally {
         setIsLoading(false);
       }

@@ -11,13 +11,19 @@ interface ErrorResponse {
 
 let refreshPromise: Promise<string> | null = null;
 
-export const instance = axios.create({
+export const publicInstance = axios.create({
   baseURL: import.meta.env.VITE_BACKEND_SERVER_URL,
   headers: { 'Content-Type': 'application/json' },
   withCredentials: true,
 });
 
-instance.interceptors.request.use((config) => {
+export const authInstance = axios.create({
+  baseURL: import.meta.env.VITE_BACKEND_SERVER_URL,
+  headers: { 'Content-Type': 'application/json' },
+  withCredentials: true,
+});
+
+authInstance.interceptors.request.use((config) => {
   const token = getAccessToken();
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
@@ -25,7 +31,7 @@ instance.interceptors.request.use((config) => {
   return config;
 });
 
-instance.interceptors.response.use(
+authInstance.interceptors.response.use(
   // called only if response status is 2xx
   (response) => {
     return response;
@@ -74,7 +80,7 @@ instance.interceptors.response.use(
       }
 
       // if successful, retry original request
-      return instance(originalRequest);
+      return authInstance(originalRequest);
     }
 
     return Promise.reject(error);
