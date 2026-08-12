@@ -9,17 +9,18 @@ function validateEnv() {
     'DB_PORT',
     'JWT_ACCESS_SECRET',
     'JWT_REFRESH_SECRET',
-    'FRONTEND_SERVER_URL'
-  ]
+    'FRONTEND_SERVER_URL',
+    'BCRYPT_COST_FACTOR',
+  ];
 
-  // check for missing environment variable values 
+  // check for missing environment variable values
   const missing = required.filter((key) => !process.env[key]);
   if (missing.length > 0) {
     throw new Error(`Missing environment variables: ${missing.join(', ')} `);
   }
-  
+
   const NODE_ENV: string = process.env.NODE_ENV!;
-  // isNan is a valid value for a number type 
+  // isNan is a valid value for a number type
   const PORT: number = Number(process.env.PORT!);
   const DB: string = process.env.DB!;
   const DB_HOST: string = process.env.DB_HOST!;
@@ -29,6 +30,7 @@ function validateEnv() {
   const JWT_ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET!;
   const JWT_REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET!;
   const FRONTEND_SERVER_URL: string = process.env.FRONTEND_SERVER_URL!;
+  const BCRYPT_COST_FACTOR: number = Number(process.env.BCYRPT_COST_FACTOR);
 
   if (isNaN(PORT)) {
     throw new Error('The environment variable PORT should be a number');
@@ -47,8 +49,9 @@ function validateEnv() {
     DB_PORT,
     JWT_ACCESS_SECRET,
     JWT_REFRESH_SECRET,
-    FRONTEND_SERVER_URL
-  }
+    FRONTEND_SERVER_URL,
+    BCRYPT_COST_FACTOR,
+  };
 }
 
 export const env = validateEnv();

@@ -1,7 +1,8 @@
-import jwt, { JwtPayload } from 'jsonwebtoken';
+import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { NoTokenProvided, InvalidToken } from '../errors/index.js';
 import type { Request, Response, NextFunction } from 'express';
+import { accessTokenPayloadSchema } from '../schemas/auth.schema.js';
 
 export function authenticateToken(req: Request, _res: Response, next: NextFunction) {
   const authHeader = req.headers['authorization'];
@@ -14,7 +15,8 @@ export function authenticateToken(req: Request, _res: Response, next: NextFuncti
 
   try {
     const decoded = jwt.verify(token, secret);
-    req.user = decoded as JwtPayload;
+    const payload = accessTokenPayloadSchema.parse(decoded);
+    req.user = payload;
     next();
   } catch (err) {
     if (err instanceof Error) {

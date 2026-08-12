@@ -1,7 +1,7 @@
-import { isAxiosError } from "axios";
+import { isAxiosError } from 'axios';
 
- interface ErrorResponse {
-  message: string
+interface ErrorResponse {
+  message: string;
 }
 
 export function handleAxiosError(error: unknown): string {
@@ -9,10 +9,10 @@ export function handleAxiosError(error: unknown): string {
     // Server Error
     if (error.response?.data?.message) {
       return error.response.data.message;
-    // Network Error
+      // Network Error
     } else if (error.request) {
       return 'Network Error';
-    // Setup Error
+      // Setup Error
     } else {
       return 'Axios Error';
     }
@@ -22,4 +22,3 @@ export function handleAxiosError(error: unknown): string {
     return 'Unexpected Error';
   }
 }
-

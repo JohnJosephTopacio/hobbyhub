@@ -1,33 +1,27 @@
-import { useNavigate } from 'react-router'
-import { useState, useEffect } from 'react'
-import { instance, isAxiosError } from '@/utils/axiosInstance'
-import { handleAxiosError } from '@/utils/axiosErrorHandler'
+import { useNavigate } from 'react-router';
+import { useState, useEffect } from 'react';
+import { authInstance, isAxiosError } from '@/utils/axiosInstance';
+import { handleAxiosError } from '@/utils/axiosErrorHandler';
 
 interface Result {
-  username?: string
+  username?: string;
 }
 
 interface UserInfo {
-  username: string,
-  email: string,
-  created_at: Date
+  username: string;
+  email: string;
+  createdAt: Date;
 }
 
-function Home () {  
-  // generic type parameters are used to derive the return type
+function Home() {
   const [result, setResult] = useState<Result | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const navigate = useNavigate();
-  // const auth = useAuth();
-  // const accessToken = auth.accessToken;
 
-  useEffect(()=> { 
-    
-    
+  useEffect(() => {
     async function fetchUserData() {
       try {
-        const response = await instance
-        .get<UserInfo>('auth/me');
+        const response = await authInstance.get<UserInfo>('users/me');
 
         if (response.statusText !== 'OK') {
           throw new Error('Failed to fetch user');
@@ -40,22 +34,29 @@ function Home () {
           if (error.response && error.response.status === 401) {
             navigate('/login');
             return;
-          };
-        }   
+          }
+        }
+
+        navigate('/login');
+        return;
       } finally {
         setIsLoading(false);
       }
     }
 
     fetchUserData();
-
   }, []);
-  
+
   return (
-    <>   
-      { isLoading ? <p>Loading</p> : result ? <p>Hello user, {result.username}</p>: <p>Failed to fetch user.</p> }
+    <>
+      {isLoading ? (
+        <p>Loading</p>
+      ) : result ? (
+        <p>Hello user, {result.username}</p>
+      ) : (
+        <p>Failed to fetch user.</p>
+      )}
     </>
-   
   );
 }
 
