@@ -32,17 +32,15 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
     console.log(`authenticated user id: ${req.user.sub}`);
     const requestedUserProfileRecord = await getUserProfile(username);
     const requestedUser = requestedUserProfileRecord.rows[0]!;
-    let isPrivate = true;
-    let ownProfile = false;
 
     // If the user is visiting their own profile
     if (requestedUser.userId === Number(req.user.sub)) {
-      ownProfile = true;
+      const userProfile = await getUserProfile(username);
+      res.status(200).json(userProfile);
     }
 
     // Check if profile is private
     if (!requestedUser.private) {
-      isPrivate = false;
     }
 
     return res.status(200);
