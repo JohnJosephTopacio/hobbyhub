@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { getUserService } from '../services/user.service.js';
-import { getUserProfile } from '../repositories/users.repository.js';
+import { getLimitedProfile, getUserProfile } from '../repositories/users.repository.js';
 
 export async function getUserInformation(req: Request, res: Response, next: NextFunction) {
   try {
@@ -28,19 +28,18 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
       throw Error('Invalid Username Format');
     }
 
-    console.log(`username: ${username}`);
-    console.log(`authenticated user id: ${req.user.sub}`);
     const requestedUserProfileRecord = await getUserProfile(username);
     const requestedUser = requestedUserProfileRecord.rows[0]!;
 
     // If the user is visiting their own profile
     if (requestedUser.userId === Number(req.user.sub)) {
       const userProfile = await getUserProfile(username);
-      res.status(200).json(userProfile);
-    }
+      return res.status(200).json(userProfile);
 
-    // Check if profile is private
-    if (!requestedUser.private) {
+      // if not their own profile and is private
+    } else if (!requestedUser.private) {
+      const limitedProfile = await getLimitedProfile(username);
+      return res.status(200).json(limitedProfile);
     }
 
     return res.status(200);
