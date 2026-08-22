@@ -24,12 +24,12 @@ export async function getProfileService(user: AccessTokenPayload, username: stri
   const requestedUser = requestedUserProfileRecord.rows[0]!;
 
   // If the user is visiting their own profile or the user is public
-  if (requestedUser.userId === Number(user.sub) || requestedUser.private) {
+  if (requestedUser.userId === Number(user.sub) || !requestedUser.private) {
     const userProfile = await getUserProfile(username);
     return userProfile;
 
     // if not their own profile and is private
-  } else if (!requestedUser.private) {
+  } else {
     const limitedProfile = await getLimitedProfile(username);
     return limitedProfile;
   }
