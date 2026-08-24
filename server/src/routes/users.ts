@@ -6,5 +6,6 @@ const usersRouter = Router();
 
 usersRouter.get('/me', authenticateToken, getUserInformation);
 usersRouter.get('/:username/profile', authenticateToken, getProfile);
+usersRouter.patch('/profile', authenticateToken, updateProfile);
 
 export default usersRouter;
