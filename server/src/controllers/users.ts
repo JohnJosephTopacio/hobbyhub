@@ -27,7 +27,9 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
       throw Error('Invalid Username Format');
     }
 
-    await getProfileService(req.user, username);
+    const userId = Number(req.user.sub);
+
+    await getProfileService(userId, username);
 
     return res.status(200);
   } catch (err) {
