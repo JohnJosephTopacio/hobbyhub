@@ -29,9 +29,9 @@ export async function getProfile(req: Request, res: Response, next: NextFunction
 
     const userId = Number(req.user.sub);
 
-    await getProfileService(userId, username);
+    const profile = await getProfileService(userId, username);
 
-    return res.status(200);
+    return res.status(200).json(profile);
   } catch (err) {
     return next(err);
   }
