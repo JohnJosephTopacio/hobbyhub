@@ -21,8 +21,11 @@ export async function getUserService(userId: number) {
 
 export async function getProfileService(userId: number, username: string) {
   const requestedUserProfileRecord = await getUserProfile(username);
-  const requestedUser = requestedUserProfileRecord.rows[0]!;
+  const requestedUser = requestedUserProfileRecord.rows[0];
 
+  if (requestedUser === undefined) {
+    throw new UserNotFound();
+  }
   // If the user is visiting their own profile or the user is public
   if (requestedUser.userId === Number(userId) || !requestedUser.private) {
     const userProfile = await getUserProfile(username);
