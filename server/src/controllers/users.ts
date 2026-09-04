@@ -50,7 +50,7 @@ export async function updateProfile(req: Request, res: Response) {
   const userId = Number(req.user.sub);
   const patchBody = patchProfileSchema.parse(req.body);
 
-  const updatedProfile = await updateProfileService(userId, patchBody);
+  const updatedProfileRecord = await updateProfileService(userId, patchBody);
 
-  res.status(200).json(updatedProfile);
+  res.status(200).json(updatedProfileRecord.rows[0]);
 }
