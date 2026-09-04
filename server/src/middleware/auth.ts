@@ -15,8 +15,7 @@ export function authenticateToken(req: Request, _res: Response, next: NextFuncti
 
   try {
     const decoded = jwt.verify(token, secret);
-    const payload = accessTokenPayloadSchema.parse(decoded);
-    req.user = payload;
+    req.user = accessTokenPayloadSchema.parse(decoded);
     next();
   } catch (err) {
     if (err instanceof Error) {
