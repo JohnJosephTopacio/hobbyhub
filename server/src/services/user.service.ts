@@ -1,7 +1,7 @@
-import { getUserInfo } from '../repositories/users.repository.js';
+import { getUserInfo, updateProfile } from '../repositories/users.repository.js';
 import { CouldNotFetchUser, UserNotFound } from '../errors/index.js';
-import { AccessTokenPayload } from '../schemas/auth.schema.js';
 import { getLimitedProfile, getUserProfile } from '../repositories/users.repository.js';
+import { PatchProfileBody } from '../schemas/user.schema.js';
 
 export async function getUserService(userId: number) {
   let user;
@@ -33,4 +33,8 @@ export async function getProfileService(userId: number, username: string) {
     const limitedProfile = await getLimitedProfile(username);
     return limitedProfile;
   }
+}
+
+export async function updateProfileService(userId: number, input: PatchProfileBody) {
+  return updateProfile(userId, input);
 }
