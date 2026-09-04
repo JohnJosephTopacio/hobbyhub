@@ -28,13 +28,13 @@ export async function getProfileService(userId: number, username: string) {
   }
   // If the user is visiting their own profile or the user is public
   if (requestedUser.userId === Number(userId) || !requestedUser.private) {
-    const userProfile = await getUserProfile(username);
-    return userProfile;
+    const userProfileRecord = await getUserProfile(username);
+    return userProfileRecord.rows[0];
 
     // if not their own profile and is private
   } else {
-    const limitedProfile = await getLimitedProfile(username);
-    return limitedProfile;
+    const limitedProfileRecord = await getLimitedProfile(username);
+    return limitedProfileRecord.rows[0];
   }
 }
 
