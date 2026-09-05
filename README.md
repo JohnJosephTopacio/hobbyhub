@@ -1,6 +1,6 @@
 # HobbyHub
 
-**Hobbyhub** is a long term project that aims to build a LinkedIn esque social media platform that celebrates the games you play, the films you watch, and the hobbies you pursue.
+**Hobbyhub** is a long term project that aims to build a LinkedIn-esque social media platform that celebrates the games you play, the films you watch, and the hobbies you pursue.
 
 In doing so, I hope to learn the fundamentals of building a full-stack software from creating the proper architecture, to making sure the code is readable and scalable.
 
