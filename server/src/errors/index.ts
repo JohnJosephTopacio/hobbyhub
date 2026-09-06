@@ -76,3 +76,15 @@ export class EnvironmentVariableMissing extends AppError {
     super('Internal Error', 500, 'internalError', 'Environment variable is Missing');
   }
 }
+
+export class NoTagsFound extends AppError {
+  constructor() {
+    super('No Tags Found', 404, 'noTagsFound', 'No Tags under the Category were found');
+  }
+}
+
+export class TagExists extends AppError {
+  constructor() {
+    super('Tag Exists Already', 409, 'tagExistsAlready', 'Attempting to create a tag that exists');
+  }
+}
