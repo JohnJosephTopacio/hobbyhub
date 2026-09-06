@@ -82,3 +82,9 @@ export class NoTagsFound extends AppError {
     super('No Tags Found', 404, 'noTagsFound', 'No Tags under the Category were found');
   }
 }
+
+export class TagExists extends AppError {
+  constructor() {
+    super('Tag Exists Already', 409, 'tagExistsAlready', 'Attempting to create a tag that exists');
+  }
+}
