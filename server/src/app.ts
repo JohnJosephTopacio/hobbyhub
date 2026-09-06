@@ -10,6 +10,7 @@ import { errorHandler } from './middleware/error.js';
 
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
+import hobbiesRouter from './routes/hobbies.js';
 
 const app = express();
 
@@ -33,6 +34,7 @@ app.use(cookieParser());
 // Routers
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
+app.use('/hobbies', hobbiesRouter);
 
 // Handle all errors that bubble up
 app.use(errorHandler);
