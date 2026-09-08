@@ -11,6 +11,7 @@ import { errorHandler } from './middleware/error.js';
 import authRouter from './routes/auth.js';
 import usersRouter from './routes/users.js';
 import hobbiesRouter from './routes/hobbies.js';
+import profileRouter from './routes/profile.js';
 
 const app = express();
 
@@ -35,6 +36,7 @@ app.use(cookieParser());
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);
 app.use('/hobbies', hobbiesRouter);
+app.use('/profile', profileRouter);
 
 // Handle all errors that bubble up
 app.use(errorHandler);
