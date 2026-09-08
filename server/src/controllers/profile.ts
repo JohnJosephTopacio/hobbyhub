@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express';
-import { TagSchema } from '../schemas/profile.schema.js';
-import { attachTagToProfile } from '../services/profiles.service.js';
+import { TagParameterSchema, TagSchema } from '../schemas/profile.schema.js';
+import { attachTagToProfile, deleteTagFromProfile } from '../services/profiles.service.js';
 
 export async function addTag(req: Request, res: Response, next: NextFunction) {
   const tag = TagSchema.parse(req.body);
@@ -8,4 +8,12 @@ export async function addTag(req: Request, res: Response, next: NextFunction) {
   const userId = Number(req.user!.sub);
   await attachTagToProfile(userId, tagId);
   return res.status(201).json({ message: 'Tag added' });
+}
+
+export async function deleteTag(req: Request, res: Response, next: NextFunction) {
+  const tagId = TagParameterSchema.parse(Number(req.params.tagId));
+  const userId = Number(req.user!.sub);
+
+  await deleteTagFromProfile(userId, tagId);
+  return res.status(204).json({ message: 'Tag removed' });
 }
