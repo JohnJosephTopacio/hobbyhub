@@ -74,3 +74,10 @@ export function updateProfile(userId: number, input: PatchProfileBody) {
     values,
   );
 }
+
+export function getProfileTags(userId: number) {
+  return pool.query(
+    'SELECT user_id, tag, category, slug FROM user_tags JOIN hobby_tags ON tag_id = hobby_tags.id JOIN hobby_categories ON hobby_tags.category_id = hobby_categories.id WHERE user_id = $1 AND hobby_tags.is_active = true AND hobby_categories.is_active = true',
+    [userId],
+  );
+}
