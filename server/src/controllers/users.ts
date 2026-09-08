@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import {
   getProfileService,
+  getTagsFromProfile,
   getUserService,
   updateProfileService,
 } from '../services/user.service.js';
@@ -53,4 +54,10 @@ export async function updateProfile(req: Request, res: Response) {
   const updatedProfileRecord = await updateProfileService(userId, patchBody);
 
   res.status(200).json(updatedProfileRecord.rows[0]);
+}
+
+export async function getTags(req: Request, res: Response, next: NextFunction) {
+  const userId = Number(req.user!.sub);
+  const result = await getTagsFromProfile(userId);
+  return result.rows;
 }
