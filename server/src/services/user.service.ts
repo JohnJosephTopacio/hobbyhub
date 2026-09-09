@@ -1,4 +1,4 @@
-import { getUserInfo, updateProfile } from '../repositories/users.repository.js';
+import { getProfileTags, getUserInfo, updateProfile } from '../repositories/users.repository.js';
 import { CouldNotFetchUser, UserNotFound } from '../errors/index.js';
 import { getLimitedProfile, getUserProfile } from '../repositories/users.repository.js';
 import { PatchProfileBody } from '../schemas/user.schema.js';
@@ -40,4 +40,8 @@ export async function getProfileService(userId: number, username: string) {
 
 export async function updateProfileService(userId: number, input: PatchProfileBody) {
   return updateProfile(userId, input);
+}
+
+export function getTagsFromProfile(username: string) {
+  return getProfileTags(username);
 }

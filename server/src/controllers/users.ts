@@ -1,10 +1,11 @@
 import { Request, Response, NextFunction } from 'express';
 import {
   getProfileService,
+  getTagsFromProfile,
   getUserService,
   updateProfileService,
 } from '../services/user.service.js';
-import { patchProfileSchema } from '../schemas/user.schema.js';
+import { patchProfileSchema, usernameSchema } from '../schemas/user.schema.js';
 
 export async function getUserInformation(req: Request, res: Response, next: NextFunction) {
   try {
@@ -53,4 +54,10 @@ export async function updateProfile(req: Request, res: Response) {
   const updatedProfileRecord = await updateProfileService(userId, patchBody);
 
   res.status(200).json(updatedProfileRecord.rows[0]);
+}
+
+export async function getTags(req: Request, res: Response, next: NextFunction) {
+  const username = usernameSchema.parse(req.params.username);
+  const result = await getTagsFromProfile(username);
+  return res.status(200).json(result.rows);
 }

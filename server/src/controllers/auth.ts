@@ -28,10 +28,6 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
 
     res.status(201).json({ message: 'User has been created' });
   } catch (error) {
-    if (error instanceof z.ZodError) {
-      next(new ValidationError(error));
-      return;
-    }
     next(error);
   }
 }

@@ -2,6 +2,7 @@ import AppError from '../errors/AppError.js';
 import type { Request, Response, NextFunction } from 'express';
 import { env } from '../config/env.js';
 import { FieldError, ValidationError } from '../errors/ValidationError.js';
+import * as z from 'zod';
 
 /* Things to add: 
   Production Logger (Look into Winston)
@@ -18,6 +19,10 @@ interface ResponseToClient {
 
 export function errorHandler(err: Error, _req: Request, res: Response, _next: NextFunction) {
   let response: ResponseToClient | null = null;
+
+  if (err instanceof z.ZodError) {
+    err = new ValidationError(err);
+  }
 
   // If in development
   if (env.NODE_ENV === 'dev' || env.NODE_ENV === 'development') {
