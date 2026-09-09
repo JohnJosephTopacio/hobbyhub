@@ -43,6 +43,4 @@ app.use(errorHandler);
 
 const PORT = env.PORT || 8887;
 
-app.listen(PORT, () => {
-  console.log(`Server started on PORT: ${PORT}`);
-});
+export default app;
