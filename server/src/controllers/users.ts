@@ -5,7 +5,7 @@ import {
   getUserService,
   updateProfileService,
 } from '../services/user.service.js';
-import { patchProfileSchema } from '../schemas/user.schema.js';
+import { patchProfileSchema, usernameSchema } from '../schemas/user.schema.js';
 
 export async function getUserInformation(req: Request, res: Response, next: NextFunction) {
   try {
@@ -57,7 +57,7 @@ export async function updateProfile(req: Request, res: Response) {
 }
 
 export async function getTags(req: Request, res: Response, next: NextFunction) {
-  const userId = Number(req.user!.sub);
-  const result = await getTagsFromProfile(userId);
-  return result.rows;
+  const username = usernameSchema.parse(req.params.username);
+  const result = await getTagsFromProfile(username);
+  return res.status(200).json(result.rows);
 }

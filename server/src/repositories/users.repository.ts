@@ -75,9 +75,23 @@ export function updateProfile(userId: number, input: PatchProfileBody) {
   );
 }
 
-export function getProfileTags(userId: number) {
+export function getProfileTags(username: string) {
   return pool.query(
-    'SELECT user_id, tag, category, slug FROM user_tags JOIN hobby_tags ON tag_id = hobby_tags.id JOIN hobby_categories ON hobby_tags.category_id = hobby_categories.id WHERE user_id = $1 AND hobby_tags.is_active = true AND hobby_categories.is_active = true',
-    [userId],
+    `
+    SELECT 
+      ut.user_id,
+      ht.tag,
+      hc.category, 
+      hc.slug 
+    FROM user_tags AS ut 
+    JOIN users AS u ON u.id = ut.user_id
+    JOIN hobby_tags AS ht ON ht.id = ut.tag_id
+    JOIN hobby_categories AS hc ON hc.id = ht.category_id 
+    WHERE username = $1  
+      AND ht.is_active = true 
+      AND hc.is_active = true
+    ORDER BY hc.category, ht.tag
+    `,
+    [username],
   );
 }

@@ -42,6 +42,6 @@ export async function updateProfileService(userId: number, input: PatchProfileBo
   return updateProfile(userId, input);
 }
 
-export function getTagsFromProfile(userId: number) {
-  return getProfileTags(userId);
+export function getTagsFromProfile(username: string) {
+  return getProfileTags(username);
 }
