@@ -26,14 +26,35 @@ export function getUserInfo(userId: number) {
 
 export function getUserProfile(username: string) {
   return pool.query<UserProfile>(
-    'SELECT username, profiles.user_id, avatar_url, cover_url, bio, private, user_tags.tag_id FROM users JOIN profiles ON users.id = profiles.user_id JOIN user_tags ON users.id = user_tags.user_id WHERE username = $1',
+    `
+    SELECT 
+      u.username, 
+      p.user_id, 
+      p.avatar_url, 
+      p.cover_url, 
+      p.bio, 
+      p.private
+    FROM users AS u
+    JOIN profiles AS p ON p.user_id = u.id 
+    WHERE username = $1
+    `,
     [username],
   );
 }
 
 export function getLimitedProfile(username: string) {
   return pool.query<UserProfile>(
-    'SELECT username, user_id, avatar_url, cover_url, bio, private FROM users JOIN profiles ON users.id = profiles.user_id WHERE username = $1',
+    `
+    SELECT 
+        u.username, 
+        p.user_id, 
+        p.avatar_url, 
+        p.cover_url, 
+        p.bio, 
+        p.private 
+      FROM users AS u 
+      JOIN profiles AS p ON p.user_id = u.id
+      WHERE username = $1`,
     [username],
   );
 }
