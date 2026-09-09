@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "description": "This is the backend of Hobbyhub.",
   "scripts": {
-    "dev": "tsx watch src/app.ts",
+    "dev": "tsx watch src/server.ts",
     "build": "tsc",
-    "start": "node dist/app.js",
+    "start": "node dist/server.js",
     "watch": "tsc -w",
     "clean": "rm -rf dist",
     "format": "prettier --write ."
