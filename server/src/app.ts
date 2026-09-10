@@ -41,6 +41,4 @@ app.use('/profile', profileRouter);
 // Handle all errors that bubble up
 app.use(errorHandler);
 
-const PORT = env.PORT || 8887;
-
 export default app;
