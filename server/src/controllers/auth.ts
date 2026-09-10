@@ -1,6 +1,4 @@
 import type { Request, Response, NextFunction } from 'express';
-import * as z from 'zod';
-
 import { env } from '../config/env.js';
 
 import {
@@ -9,7 +7,6 @@ import {
   registerUserService,
 } from '../services/auth.service.js';
 import { registerUserSchema, loginUserSchema, refreshTokenSchema } from '../schemas/auth.schema.js';
-import { ValidationError } from '../errors/ValidationError.js';
 
 // Token and cookie expiry minutes
 const expiryDays = 15;
