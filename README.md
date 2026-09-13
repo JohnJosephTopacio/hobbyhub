@@ -19,7 +19,7 @@ I'm building this project using the **PERN** stack:
 
 - **CORS Configuration**
 - **Authentication and Authorization with JWT**
-- **Rotating Refresh Token Architecture**
+- **Rotating Refresh Token Architecture With Token Reuse Detection**
 - **Silent Refreshing with Axios Interceptors**
 - **XSS and CSRF prevention with httpOnly and sameSite Cookies**
 - **Statically Type-Checked Codebase with Typescript**
