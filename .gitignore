@@ -53,4 +53,4 @@ dist-ssr
 .rest
 
 # Testing file
-test.js
+sandbox.ts
