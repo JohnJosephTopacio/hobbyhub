@@ -25,7 +25,7 @@ export function errorHandler(err: Error, _req: Request, res: Response, _next: Ne
   }
 
   // If in development
-  if (env.NODE_ENV === 'dev' || env.NODE_ENV === 'development') {
+  if (env.NODE_ENV === 'dev' || env.NODE_ENV === 'development' || env.NODE_ENV === 'test') {
     // Log the error object
     console.error(err);
 

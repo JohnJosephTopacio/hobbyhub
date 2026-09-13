@@ -21,16 +21,13 @@ export async function loadCategoryTags(categorySlug: string) {
   return categoryTags.rows;
 }
 
-export async function processTagCreation(tag: TagRequest) {
-  const tagName = tag.tag;
-  const tagCategoryId = tag.categoryId;
-
-  const tagDoesExists = await tagExists(tagName, tagCategoryId);
+export async function processTagCreation({ tag, categoryId }: TagRequest) {
+  const tagDoesExists = await tagExists(tag, categoryId);
   if (tagDoesExists) {
     throw new TagExists();
   }
 
-  const result = await insertTag(tagName, tagCategoryId);
+  const result = await insertTag(tag, categoryId);
 
   return await result.rows[0];
 }

@@ -26,9 +26,12 @@ interface TokenSet {
   refreshToken: string;
 }
 
-export async function registerUserService(input: RegisterBody): Promise<void> {
+export async function registerUserService({
+  email,
+  username,
+  password,
+}: RegisterBody): Promise<void> {
   // Check if email is already registered
-  const { email, username, password } = input;
   const emailExists = await userExistsByEmail(email);
   if (emailExists) {
     throw new EmailRegistered();
@@ -47,8 +50,7 @@ export async function registerUserService(input: RegisterBody): Promise<void> {
   await createUserWithProfile(email, username, hashedPassword);
 }
 
-export async function loginUserService(input: LoginBody): Promise<TokenSet> {
-  const { email, password } = input;
+export async function loginUserService({ email, password }: LoginBody): Promise<TokenSet> {
   const userAuthRecord = await getUser(email);
 
   // Check if the email is not registered

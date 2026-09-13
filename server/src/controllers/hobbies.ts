@@ -17,6 +17,5 @@ export async function getCategoryTags(req: Request, res: Response, next: NextFun
 
 export async function createTag(req: Request, res: Response, next: NextFunction) {
   const tag = Tag.parse(req.body);
-  console.log(req.body);
   return res.status(201).json(await processTagCreation(tag));
 }

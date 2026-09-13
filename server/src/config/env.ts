@@ -30,7 +30,7 @@ function validateEnv() {
   const JWT_ACCESS_SECRET: string = process.env.JWT_ACCESS_SECRET!;
   const JWT_REFRESH_SECRET: string = process.env.JWT_REFRESH_SECRET!;
   const FRONTEND_SERVER_URL: string = process.env.FRONTEND_SERVER_URL!;
-  const BCRYPT_COST_FACTOR: number = Number(process.env.BCYRPT_COST_FACTOR);
+  const BCRYPT_COST_FACTOR: number = Number(process.env.BCRYPT_COST_FACTOR);
 
   if (isNaN(PORT)) {
     throw new Error('The environment variable PORT should be a number');

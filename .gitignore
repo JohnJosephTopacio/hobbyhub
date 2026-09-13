@@ -5,6 +5,7 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.env.test
 
 # logs
 npm-debug.log*
@@ -52,4 +53,4 @@ dist-ssr
 .rest
 
 # Testing file
-test.js
+sandbox.ts
