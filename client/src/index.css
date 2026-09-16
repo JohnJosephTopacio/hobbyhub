@@ -2,10 +2,10 @@
 
 @theme {
   /* Background and cards */
-  --color-bg-main: #f8f5eb; /* Main page background */
-  --color-bg-surface: #f1eade; /* Cards */
-  --color-bg-muted: #e9d8a6;
-  --color-bg-shadow: #d8ca9d;
+  --color-main: #f8f5eb; /* Main page background */
+  --color-surface: #f1eade; /* Cards */
+  --color-muted: #e9d8a6;
+  --color-shadow: #d8ca9d;
 
   /* Typography colors */
   --color-text-main: #28241c; /* Primary  typography */
