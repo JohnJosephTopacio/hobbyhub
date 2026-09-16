@@ -1,4 +1,3 @@
-import '@/auth/pages/register/RegisterForm.css';
 import { useState } from 'react';
 import { useNavigate } from 'react-router';
 import { handleAxiosError } from '@/utils/axiosErrorHandler';
