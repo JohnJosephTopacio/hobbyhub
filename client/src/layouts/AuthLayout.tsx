@@ -12,7 +12,7 @@ export function AuthLayout() {
           <img className="max-w-lg" src={art} alt="Hobbyhub Auth Page Art" />
         </div>
         <div className="w-1/2 flex justify-center items-center">
-          <div className="bg-surface max-w-lg w-full h-[470px] shadow-[8px_8px_0px_0px_#d8ca9d] p-12">
+          <div className="bg-surface max-w-lg w-full h-[470px] shadow-[8px_8px_0px_0px_#d8ca9d] p-8 ">
             <Outlet />
           </div>
         </div>

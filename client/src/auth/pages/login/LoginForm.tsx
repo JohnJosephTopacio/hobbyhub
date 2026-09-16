@@ -79,7 +79,7 @@ function LoginForm() {
         </div>
 
         <button
-          className="p-2 bg-action-primary text-main hover:bg-action-primary-hover"
+          className="p-2 mb-2 bg-action-primary text-main hover:bg-action-primary-hover"
           type="submit"
           disabled={isLoading}
         >
@@ -87,7 +87,11 @@ function LoginForm() {
         </button>
 
         {resultMessage && (
-          <p className={isSuccess ? 'success-message' : 'error-message'}>{resultMessage}</p>
+          <p
+            className={`text-feedback-error text-sm {isSuccess ? 'success-message' : 'error-message'}`}
+          >
+            {resultMessage}
+          </p>
         )}
       </form>
     </div>
