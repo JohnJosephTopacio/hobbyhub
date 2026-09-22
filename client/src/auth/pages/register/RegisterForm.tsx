@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { handleAxiosError } from '@/utils/axiosErrorHandler';
 import { register } from '@/auth/api/auth';
 import { Tooltip } from '@/shared/components/Tooltip';
@@ -68,7 +68,10 @@ function RegisterForm() {
     <div className="flex flex-col font-extrabold">
       <h1 className="text-xl font-extrabold">Create Your Account</h1>
       <h2 className="text-base text-text-muted pb-2">
-        Already registered? <span className="text-action-secondary">Sign in here.</span>
+        Already registered?{' '}
+        <Link to="/login" className="text-action-secondary hover:text-action-secondary-hover">
+          Sign in here.
+        </Link>
       </h2>
       <form className="flex flex-col" onSubmit={formHandler}>
         <label htmlFor="email">Email: </label>
