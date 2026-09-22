@@ -1,0 +1,30 @@
+@import 'tailwindcss';
+
+@theme {
+  /* Background and cards */
+  --color-main: #f8f5eb; /* Main page background */
+  --color-surface: #f1eade; /* Cards */
+  --color-muted: #e9d8a6;
+  --color-shadow: #d8ca9d;
+
+  /* Typography colors */
+  --color-text-main: #28241c; /* Primary  typography */
+  --color-text-muted: #625c4e; /* Secondary text*/
+
+  /* Primary Action Group (Red Tones) */
+  --color-action-primary: #bb3e03; /* Main CTA button background */
+  --color-action-primary-hover: #9b2226; /* CTA button hover state */
+
+  /* Secondary Action Group (Blue tones) */
+  --color-action-secondary: #005f73; /* Secondary buttons or text links */
+  --color-action-secondary-hover: #0a9396; /* Secondary hover state */
+
+  /* System States */
+  --color-feedback-error: #ae2012; /* Earthy Red for destructive actions/alerts */
+  --color-feedback-warning: #ee9b00; /* Gamboge Yellow for warnings or star ratings */
+  --color-feedback-success: #3f7a50; /* Sage Moss for success messages or checkmarks */
+
+  /* Fonts */
+  --font-sans: 'Arial Narrow', sans-serif;
+  --font-bebas: 'Bebas Neue', sans-serif;
+}

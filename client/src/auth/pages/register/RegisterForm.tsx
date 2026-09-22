@@ -1,8 +1,8 @@
-import '@/auth/pages/register/RegisterForm.css';
 import { useState } from 'react';
-import { useNavigate } from 'react-router';
+import { useNavigate, Link } from 'react-router';
 import { handleAxiosError } from '@/utils/axiosErrorHandler';
 import { register } from '@/auth/api/auth';
+import { Tooltip } from '@/shared/components/Tooltip';
 
 const regex = /^[a-zA-Z][a-zA-Z0-9_]{5,15}$/;
 
@@ -65,57 +65,85 @@ function RegisterForm() {
   }
 
   return (
-    <form className="sign-up-form" id="sign-up-form" onSubmit={formHandler}>
-      <label htmlFor="email">Email: </label>
-      <input
-        type="email"
-        placeholder="Email"
-        name="email"
-        id="email"
-        value={email}
-        onChange={(e) => {
-          setEmail(e.target.value);
-        }}
-      />
+    <div className="flex flex-col font-extrabold">
+      <h1 className="text-xl font-extrabold">Create Your Account</h1>
+      <h2 className="text-base text-text-muted pb-2">
+        Already registered?{' '}
+        <Link to="/login" className="text-action-secondary hover:text-action-secondary-hover">
+          Sign in here.
+        </Link>
+      </h2>
+      <form className="flex flex-col" onSubmit={formHandler}>
+        <label htmlFor="email">Email: </label>
+        <div className="flex mb-2">
+          <input
+            type="email"
+            name="email"
+            id="email"
+            value={email}
+            onChange={(e) => {
+              setEmail(e.target.value);
+            }}
+            className="p-1 border-2 border-muted w-full focus:border-action-secondary outline-none"
+          />
+          <Tooltip text="Ex. johndoe@email.com" />
+        </div>
 
-      <label htmlFor="username">Username: </label>
-      <input
-        type="text"
-        placeholder="Username"
-        name="username"
-        id="username"
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-      />
+        <label htmlFor="username">Username: </label>
+        <div className="flex mb-2">
+          <input
+            type="text"
+            name="username"
+            id="username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="p-1 border-2 border-muted w-full focus:border-action-secondary outline-none"
+          />
+          <Tooltip text="6-16 characters, starting with a letter. Letters, numbers, and underscores only." />
+        </div>
 
-      <label htmlFor="password">Password: </label>
-      <input
-        type="password"
-        placeholder="Password"
-        name="password"
-        id="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-      />
+        <label htmlFor="password">Password: </label>
+        <div className="flex mb-2">
+          <input
+            type="password"
+            name="password"
+            id="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            className="p-1 border-2 border-muted w-full focus:border-action-secondary outline-none"
+          />
+          <Tooltip text="Minimum 8 characters. At least one number, one lowercase, and one uppercase letter" />
+        </div>
 
-      <label htmlFor="confirmation-password">Confirm Password: </label>
-      <input
-        type="password"
-        placeholder="Confirm Password"
-        name="confirmationPassword"
-        id="confirmation-password"
-        value={confirmationPassword}
-        onChange={(e) => setConfirmationPassword(e.target.value)}
-      />
+        <label htmlFor="confirmation-password">Confirm Password: </label>
+        <div className="flex mb-6">
+          <input
+            type="password"
+            name="confirmationPassword"
+            id="confirmation-password"
+            value={confirmationPassword}
+            onChange={(e) => setConfirmationPassword(e.target.value)}
+            className="p-1 border-2 border-muted w-full focus:border-action-secondary outline-none mr-[25px]"
+          />
+        </div>
 
-      <button type="submit" disabled={isLoading}>
-        Submit
-      </button>
+        <button
+          className="p-2 mb-2 bg-action-primary text-main hover:bg-action-primary-hover"
+          type="submit"
+          disabled={isLoading}
+        >
+          Sign-up
+        </button>
 
-      {resultMessage && (
-        <p className={isSuccess ? 'success-message' : 'error-message'}>{resultMessage}</p>
-      )}
-    </form>
+        {resultMessage && (
+          <p
+            className={`text-feedback-error text-sm {isSuccess ? 'success-message' : 'error-message'}`}
+          >
+            {resultMessage}
+          </p>
+        )}
+      </form>
+    </div>
   );
 }
 
