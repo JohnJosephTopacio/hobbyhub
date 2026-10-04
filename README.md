@@ -6,6 +6,8 @@ In doing so, I hope to establish a non-superficial understanding of each tool, t
 
 **Hobbyhub** is meant to be a LinkedIn-esque platform that is instead focused on creating a dedicated space for a wide variety of hobbies.
 
+---
+
 ### Tech Stack
 
 - **P**ostgreSQL
@@ -13,12 +15,12 @@ In doing so, I hope to establish a non-superficial understanding of each tool, t
 - **R**eact
 - **N**ode.js
 
----
-
 Currently, the application is built using a decoupled, [three-tier architecture](https://www.ibm.com/think/topics/three-tier-architecture).
 
-<summary> <b>Notable Tools, Features, and Concepts learned so far...</b></summary>
+---
+
 <details open>
+<summary> <h3>Notable Tools, Features, and Concepts learned so far...</h3></summary>
 
 - **Rotating Refresh Token Architecture With Token Reuse Detection**
 - **Silent Refreshing with Axios Interceptors**
@@ -40,6 +42,3 @@ Currently, the application is built using a decoupled, [three-tier architecture]
 - **Tailwind**
 
 </details>
-
-![Login Page](images/login.jpg)
-![Register Page](images/register.jpg)
