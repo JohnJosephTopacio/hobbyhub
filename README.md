@@ -42,3 +42,6 @@ Currently, the application is built using a decoupled, [three-tier architecture]
 - **Tailwind**
 
 </details>
+
+![login](/images/login.jpg.png)
+![register](/images/register.jpg.png)
