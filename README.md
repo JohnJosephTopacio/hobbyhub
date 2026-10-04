@@ -43,5 +43,5 @@ Currently, the application is built using a decoupled, [three-tier architecture]
 
 </details>
 
-![login](/images/login.jpg.png)
-![register](/images/register.jpg.png)
+![login](/images/login.jpg)
+![register](/images/register.jpg)
