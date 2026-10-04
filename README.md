@@ -1,36 +1,44 @@
 # HobbyHub
 
-**Hobbyhub** is a long-term learning project that aims to build a LinkedIn esque social media platform that celebrates the games you play, the films you watch, and the hobbies you pursue.
+**Hobbyhub** is a continuous long-term learning project deliberately built through reading documentations and getting worded feedback from AI regarding best-practices and software engineering principles.
 
-In doing so, I hope to learn the fundamentals of building a full-stack software from creating the proper architecture, to making sure the code is readable and scalable.
+In doing so, I hope to establish a non-superficial understanding of each tool, technology, and concept I encounter while developing the project and adding more and more features.
 
----
+## Hobbyhub is meant to be a LinkedIn-esque platform that is instead focused on creating a dedicated space for a wide variety of hobbies.
 
 ### Tech Stack
-
-I'm building this project using the **PERN** stack:
 
 - **P**ostgreSQL
 - **E**xpress
 - **R**eact
 - **N**ode.js
 
-### Core Concepts I've learned, but are not limited to:
+Currently, the application is built using a decoupled, [three-tier architecture](https://www.ibm.com/think/topics/three-tier-architecture).
 
-- **CORS Configuration**
-- **Authentication and Authorization with JWT**
+### Notable Tools, Features, and Concepts learned so far...
+
+<details open>
+
 - **Rotating Refresh Token Architecture With Token Reuse Detection**
 - **Silent Refreshing with Axios Interceptors**
-- **XSS and CSRF prevention with httpOnly and sameSite Cookies**
-- **Statically Type-Checked Codebase with Typescript**
 - **Runtime Data Validation with Zod**
+- **Indexes, Triggers, and Transactions**
+- **XSS and CSRF prevention with httpOnly and sameSite Cookies**
+- **Custom Error Handling Architecture**
+- **Vitest and Supertest**
+- **React Context API**
+- **Axios Instances**
+- **Statically Type-Checked Codebase with Typescript**
 - **Controller-Service-Repository (CSR) Pattern**
-- **PostgreSQL**
+- **CORS Configuration**
+- **Authentication and Authorization with JWT**
 - **Database Pooling**
 - **Database Seeding and Migration**
-- **Indexes, Triggers, and Transactions**
-- **Custom Error Handling Architecture**
 - **React Router**
-- **Axios Instances**
 - **React Rendering Behavior**
-- **React Context API**
+- **Tailwind**
+
+</details>
+
+![Login Page](images/login.png)
+![Register Page](images/register.png)
