@@ -82,7 +82,7 @@ function LoginForm() {
         </div>
 
         <button
-          className="p-2 mb-2 bg-action-primary text-main hover:bg-action-primary-hover"
+          className="p-2 mb-2 mr-6 bg-action-primary text-main hover:bg-action-primary-hover"
           type="submit"
           disabled={isLoading}
         >
