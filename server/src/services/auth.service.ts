@@ -107,19 +107,24 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
       throw new Error('Refresh token does not match any token in the database.');
     }
 
+    const tokenStatus = tokenRecord.rows[0]!.tokenStatus;
+
     // Check if refresh token is revoked
-    if (tokenRecord.rows[0]!.tokenStatus === 'REVOKED') {
+    if (tokenStatus === 'REVOKED') {
       // TODO: log all user sessions, a malicious actor may be trying to get in
 
       throw new Error('Refresh token has been revoked.');
+    }
+
+    // TODO: Add check for rotated tokens
+    if (tokenStatus === 'ROTATED') {
+      throw new Error('Refresh Token has been rotated.');
     }
 
     // Check if refresh token is expired
     if (tokenRecord.rows[0]!.expiresAt < new Date()) {
       throw new Error('Refresh Token has expired.');
     }
-
-    // TODO: Add check for rotated tokens
 
     // Update the refresh token's status to rotated
     await rotateToken(decoded.jti, client);
