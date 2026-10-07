@@ -10,7 +10,10 @@
     "clean": "rm -rf dist",
     "format": "prettier --write .",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "migrate": "tsx scripts/migrate.ts",
+    "seed": "tsx scripts/seed.ts",
+    "reset-dev-database": "tsx scripts/reset_dev_database.ts"
   },
   "keywords": [],
   "author": "",
