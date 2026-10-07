@@ -1,1 +1,1 @@
-CREATE INDEX IF NOT EXISTS auth_sessions_user_id_idx ON auth_sessions(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS one_active_refresh_token_per_session ON refresh_tokens(session_id) WHERE session_status = 'ACTIVE';
