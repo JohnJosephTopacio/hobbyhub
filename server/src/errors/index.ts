@@ -88,3 +88,14 @@ export class TagExists extends AppError {
     super('Tag Exists Already', 409, 'tagExistsAlready', 'Attempting to create a tag that exists');
   }
 }
+
+export class InvalidPayloadShape extends AppError {
+  constructor() {
+    super(
+      'Invalid Token Payload',
+      400,
+      'invalidTokenPayload',
+      'The decoded token payload shape is invalid',
+    );
+  }
+}

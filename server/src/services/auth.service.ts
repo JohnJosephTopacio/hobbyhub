@@ -10,6 +10,7 @@ import {
   UsernameRegistered,
   EmailNotRegistered,
   IncorrectPassword,
+  InvalidPayloadShape,
 } from '../errors/index.js';
 import {
   userExistsByEmail,
@@ -86,10 +87,11 @@ export async function loginUserService({ email, password }: LoginBody): Promise<
 export async function refreshTokenService(refreshToken: RefreshTokenBody): Promise<TokenSet> {
   let decoded: RefreshPayload;
   const verified = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+
   if (isRefreshPayload(verified)) {
     decoded = verified;
   } else {
-    throw Error('Invalid Refresh Token Payload Shape');
+    throw new InvalidPayloadShape();
   }
 
   const client = await pool.connect();
