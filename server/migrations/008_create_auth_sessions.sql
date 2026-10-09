@@ -16,7 +16,6 @@ CREATE TYPE session_revocation_reason AS ENUM (
   'ADMIN'
 );
 
-
 CREATE TABLE IF NOT EXISTS auth_sessions (
   session_id UUID PRIMARY KEY,
   user_id INT NOT NULL,
@@ -50,7 +49,7 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
   ),
   CONSTRAINT valid_expiration CHECK (expires_at > created_at),
   CONSTRAINT last_activity_and_created_at CHECK (last_activity_at >= created_at),
-  CONSTRAINT revoked_at_validity CHECK (revoked_at IS NULL OR revoked_at > created_at)
+  CONSTRAINT revoked_at_validity CHECK (revoked_at IS NULL OR revoked_at >= created_at)
 );
 
 CREATE TABLE IF NOT EXISTS refresh_tokens (
@@ -65,7 +64,7 @@ CREATE TABLE IF NOT EXISTS refresh_tokens (
   CONSTRAINT fk_refresh_tokens_session_id FOREIGN KEY(session_id) 
   REFERENCES auth_sessions(session_id) ON DELETE CASCADE,
   CONSTRAINT fk_refresh_tokens_jti FOREIGN KEY(replaced_by) 
-  REFERENCES refresh_tokens(jti),
+  REFERENCES refresh_tokens(jti) DEFERRABLE INITIALLY DEFERRED,
   CONSTRAINT check_status_and_rotation_consistency CHECK (
     CASE 
 
