@@ -7,19 +7,19 @@ import { RefreshPayload, isRefreshPayload } from '../types/auth.js';
 import pool from '../db/db.js';
 import {
   EmailRegistered,
-  UsernameRegistered,
   EmailNotRegistered,
   IncorrectPassword,
   InvalidPayloadShape,
+  UsernameRegisteredAlready,
 } from '../errors/index.js';
 import {
   userExistsByEmail,
   userExistsByUsername,
   createUserWithProfile,
-  getUser,
   storeRefreshToken,
   getRefreshTokenByJti,
   rotateToken,
+  getUserByEmail,
 } from '../repositories/auth.repository.js';
 
 interface TokenSet {
@@ -32,48 +32,36 @@ export async function registerUserService({
   username,
   password,
 }: RegisterBody): Promise<void> {
-  // Check if email is already registered
   const emailExists = await userExistsByEmail(email);
   if (emailExists) {
     throw new EmailRegistered();
   }
 
-  // Check if username already exists
   const usernameExists = await userExistsByUsername(username);
   if (usernameExists) {
-    throw new UsernameRegistered();
+    throw new UsernameRegisteredAlready();
   }
 
-  // Hash the password
   const hashedPassword = await bcrypt.hash(password, env.BCRYPT_COST_FACTOR ?? 10);
 
-  // Create the user in the users table
   await createUserWithProfile(email, username, hashedPassword);
 }
 
 export async function loginUserService({ email, password }: LoginBody): Promise<TokenSet> {
-  const userAuthRecord = await getUser(email);
+  const user = (await getUserByEmail(email)).rows[0];
 
-  // Check if the email is not registered
-  if (!userAuthRecord.rows[0]) {
+  if (!user) {
     throw new EmailNotRegistered();
   }
 
-  const user = userAuthRecord.rows[0];
-  const hashedPassword = user.password;
-
-  // Hash the incoming password and compare it to the hashed password in the database, if it does not match send an error
-  const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
-
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) {
     throw new IncorrectPassword();
   }
 
-  // JTI means JWT ID
   const jti = crypto.randomUUID();
   const sub = user.id.toString();
 
-  // If all is well, the user is logged on - send back JWT Token
   const refreshToken = createRefreshToken(sub, jti);
 
   // Time at the moment + 15 days
@@ -85,12 +73,9 @@ export async function loginUserService({ email, password }: LoginBody): Promise<
 }
 
 export async function refreshTokenService(refreshToken: RefreshTokenBody): Promise<TokenSet> {
-  let decoded: RefreshPayload;
-  const verified = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+  let payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
 
-  if (isRefreshPayload(verified)) {
-    decoded = verified;
-  } else {
+  if (!isRefreshPayload(payload)) {
     throw new InvalidPayloadShape();
   }
 
@@ -102,7 +87,7 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     await client.query('BEGIN');
 
     // Retrieve matching refresh token
-    const tokenRecord = await getRefreshTokenByJti(decoded.jti, client);
+    const tokenRecord = await getRefreshTokenByJti(payload.jti, client);
 
     // Check if refresh token is in the database
     if (tokenRecord.rows.length < 1) {
@@ -129,15 +114,15 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     }
 
     // Update the refresh token's status to rotated
-    await rotateToken(decoded.jti, client);
+    await rotateToken(payload.jti, client);
 
     // Create new refresh token
     const jti = crypto.randomUUID();
-    newRefreshToken = createRefreshToken(decoded.sub, jti);
+    newRefreshToken = createRefreshToken(payload.sub, jti);
     const expiresAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
     // Store the new refresh token in database
-    await storeRefreshToken(jti, Number(decoded.sub), expiresAt, client);
+    await storeRefreshToken(jti, Number(payload.sub), expiresAt, client);
 
     await client.query('COMMIT');
   } catch (error) {
@@ -148,7 +133,7 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
   }
 
   // Create new access token
-  const newAccessToken = createAccessToken(decoded.sub);
+  const newAccessToken = createAccessToken(payload.sub);
 
   return { accessToken: newAccessToken, refreshToken: newRefreshToken };
 }

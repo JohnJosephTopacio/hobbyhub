@@ -65,7 +65,7 @@ export async function createUserWithProfile(
   }
 }
 
-export function getUser(email: string) {
+export function getUserByEmail(email: string) {
   return pool.query<UserAuthRow>('SELECT id, password FROM users WHERE email = $1', [email]);
 }
 

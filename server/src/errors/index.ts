@@ -36,9 +36,9 @@ export class EmailRegistered extends AppError {
   }
 }
 
-export class UsernameRegistered extends AppError {
+export class UsernameRegisteredAlready extends AppError {
   constructor() {
-    super('Username already registered', 409, 'usernameRegistered');
+    super('Username already registered already', 409, 'usernameRegisteredAlready');
   }
 }
 
