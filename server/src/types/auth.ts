@@ -15,3 +15,11 @@ export function isRefreshPayload(
 ): payload is RefreshPayload {
   return typeof payload !== 'string' && 'jti' in payload && 'sub' in payload;
 }
+
+export interface ClientMetadata {
+  userAgent: string | undefined;
+  clientName: string | undefined;
+  operatingSystem: string | undefined;
+  deviceType: string | undefined;
+  initialIp: string | undefined;
+}

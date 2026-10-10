@@ -3,7 +3,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { RegisterBody, LoginBody, RefreshTokenBody } from '../schemas/auth.schema.js';
 import { createAccessToken, createRefreshToken } from './token.service.js';
-import { RefreshPayload, isRefreshPayload } from '../types/auth.js';
+import { ClientMetadata, isRefreshPayload } from '../types/auth.js';
 import pool from '../db/db.js';
 import {
   EmailRegistered,
@@ -47,7 +47,10 @@ export async function registerUserService({
   await createUserWithProfile(email, username, hashedPassword);
 }
 
-export async function loginUserService({ email, password }: LoginBody): Promise<TokenSet> {
+export async function loginUserService(
+  { email, password }: LoginBody,
+  clientMetadata: ClientMetadata,
+): Promise<TokenSet> {
   const user = (await getUserByEmail(email)).rows[0];
 
   if (!user) {
@@ -73,7 +76,7 @@ export async function loginUserService({ email, password }: LoginBody): Promise<
 }
 
 export async function refreshTokenService(refreshToken: RefreshTokenBody): Promise<TokenSet> {
-  let payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+  const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
 
   if (!isRefreshPayload(payload)) {
     throw new InvalidPayloadShape();

@@ -7,6 +7,7 @@ import {
   registerUserService,
 } from '../services/auth.service.js';
 import { registerUserSchema, loginUserSchema, refreshTokenSchema } from '../schemas/auth.schema.js';
+import { parseClientMetadata } from '../services/clientMetadata.service.js';
 
 // Token and cookie expiry minutes
 const expiryDays = 15;
@@ -32,7 +33,10 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
 export async function loginUser(req: Request, res: Response, next: NextFunction) {
   try {
     const input = loginUserSchema.parse(req.body);
-    const tokens = await loginUserService(input);
+    const userAgent = req.headers['user-agent'];
+    const clientMetadata = parseClientMetadata(userAgent, req.ip);
+
+    const tokens = await loginUserService(input, clientMetadata);
     const { accessToken, refreshToken } = tokens;
 
     res

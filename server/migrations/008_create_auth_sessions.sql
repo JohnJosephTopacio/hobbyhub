@@ -25,13 +25,12 @@ CREATE TABLE IF NOT EXISTS auth_sessions (
   session_status session_status NOT NULL DEFAULT 'ACTIVE',
   revoked_at TIMESTAMPTZ,  
   revocation_reason session_revocation_reason,
-  client_type TEXT,
   client_name TEXT,
   operating_system TEXT,
-  device_name TEXT,
+  device_type TEXT,
+  user_agent TEXT,
   initial_ip INET,
   last_ip INET,
-  user_agent TEXT,
   CONSTRAINT fk_auth_sessions_user_id FOREIGN KEY(user_id)
   REFERENCES users(id),
   CONSTRAINT check_status_and_revocation_consistency CHECK (
