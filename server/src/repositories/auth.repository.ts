@@ -69,28 +69,6 @@ export function getUserByEmail(email: string) {
   return pool.query<UserAuthRow>('SELECT id, password FROM users WHERE email = $1', [email]);
 }
 
-// Postgres driver auto-converts Date object to UTC which fits TIMESTAMPTZ
-export function storeRefreshToken(
-  jti: string,
-  userId: number,
-  expiresAt: Date,
-  client?: PoolClient,
-) {
-  if (!client) {
-    return pool.query('INSERT INTO auth_sessions (jti, user_id, expires_at) VALUES ($1, $2, $3)', [
-      jti,
-      userId,
-      expiresAt,
-    ]);
-  }
-
-  return client.query('INSERT INTO auth_sessions (jti, user_id, expires_at) VALUES ($1, $2, $3)', [
-    jti,
-    userId,
-    expiresAt,
-  ]);
-}
-
 export function getRefreshTokenByJti(jti: string, client: PoolClient) {
   return client.query<RefreshToken>(
     'SELECT jti, user_id, expires_at, token_status FROM auth_sessions WHERE jti = $1 FOR UPDATE',

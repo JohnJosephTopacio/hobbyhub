@@ -16,11 +16,11 @@ import {
   userExistsByEmail,
   userExistsByUsername,
   createUserWithProfile,
-  storeRefreshToken,
   getRefreshTokenByJti,
   rotateToken,
   getUserByEmail,
 } from '../repositories/auth.repository.js';
+import { startAuthSession } from './authSession.service.js';
 
 interface TokenSet {
   accessToken: string;
@@ -62,17 +62,7 @@ export async function loginUserService(
     throw new IncorrectPassword();
   }
 
-  const jti = crypto.randomUUID();
-  const sub = user.id.toString();
-
-  const refreshToken = createRefreshToken(sub, jti);
-
-  // Time at the moment + 15 days
-  const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
-  await storeRefreshToken(jti, user.id, refreshTokenExpiry);
-
-  const accessToken = createAccessToken(sub);
-  return { accessToken, refreshToken };
+  return startAuthSession(clientMetadata, user.id);
 }
 
 export async function refreshTokenService(refreshToken: RefreshTokenBody): Promise<TokenSet> {
@@ -125,7 +115,7 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     const expiresAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
 
     // Store the new refresh token in database
-    await storeRefreshToken(jti, Number(payload.sub), expiresAt, client);
+    //await storeRefreshToken(jti, Number(payload.sub), expiresAt, client);
 
     await client.query('COMMIT');
   } catch (error) {

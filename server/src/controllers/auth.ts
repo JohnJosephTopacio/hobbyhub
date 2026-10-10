@@ -42,7 +42,6 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
     res
       .status(200)
       .cookie('token', refreshToken, {
-        // The first number is how many minutes the expression equates to
         maxAge: expiryDays * 1000 * 60 * 60 * 24,
         httpOnly: true,
         // This needs to be revisited in the deployment phase for cross-site requests
@@ -66,7 +65,6 @@ export async function refreshToken(req: Request, res: Response, next: NextFuncti
   res
     .status(200)
     .cookie('token', refreshToken, {
-      // The first number is how many minutes the expression equates to
       maxAge: expiryDays * 1000 * 60 * 60 * 24,
       httpOnly: true,
       // This needs to be revisited in the deployment phase for cross-site requests
