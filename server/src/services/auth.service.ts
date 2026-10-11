@@ -3,23 +3,35 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { RegisterBody, LoginBody, RefreshTokenBody } from '../schemas/auth.schema.js';
 import { createAccessToken, createRefreshToken } from './token.service.js';
-import { RefreshPayload, isRefreshPayload } from '../types/auth.js';
+import { ClientMetadata, isRefreshPayload } from '../types/auth.js';
 import pool from '../db/db.js';
 import {
   EmailRegistered,
-  UsernameRegistered,
   EmailNotRegistered,
   IncorrectPassword,
+  InvalidPayloadShape,
+  UsernameRegisteredAlready,
+  RefreshTokenNotFound,
+  RefreshTokenRevoked,
+  RefreshTokenRotated,
+  RefreshTokenExpired,
+  SessionInvalid,
+  SessionExpired,
 } from '../errors/index.js';
 import {
   userExistsByEmail,
   userExistsByUsername,
   createUserWithProfile,
-  getUser,
-  storeRefreshToken,
   getRefreshTokenByJti,
   rotateToken,
+  getUserByEmail,
+  insertNewRefreshToken,
+  getSessionInfo,
+  getSessionIdFromJti,
+  updateSessionLastActivityAndIp,
 } from '../repositories/auth.repository.js';
+import { startAuthSession } from './authSession.service.js';
+import { authConfig } from '../config/auth.js';
 
 interface TokenSet {
   accessToken: string;
@@ -31,106 +43,120 @@ export async function registerUserService({
   username,
   password,
 }: RegisterBody): Promise<void> {
-  // Check if email is already registered
   const emailExists = await userExistsByEmail(email);
   if (emailExists) {
     throw new EmailRegistered();
   }
 
-  // Check if username already exists
   const usernameExists = await userExistsByUsername(username);
   if (usernameExists) {
-    throw new UsernameRegistered();
+    throw new UsernameRegisteredAlready();
   }
 
-  // Hash the password
   const hashedPassword = await bcrypt.hash(password, env.BCRYPT_COST_FACTOR ?? 10);
 
-  // Create the user in the users table
   await createUserWithProfile(email, username, hashedPassword);
 }
 
-export async function loginUserService({ email, password }: LoginBody): Promise<TokenSet> {
-  const userAuthRecord = await getUser(email);
+export async function loginUserService(
+  { email, password }: LoginBody,
+  clientMetadata: ClientMetadata,
+): Promise<TokenSet> {
+  const user = (await getUserByEmail(email)).rows[0];
 
-  // Check if the email is not registered
-  if (!userAuthRecord.rows[0]) {
+  if (!user) {
     throw new EmailNotRegistered();
   }
 
-  const user = userAuthRecord.rows[0];
-  const hashedPassword = user.password;
-
-  // Hash the incoming password and compare it to the hashed password in the database, if it does not match send an error
-  const isPasswordCorrect = await bcrypt.compare(password, hashedPassword);
-
+  const isPasswordCorrect = await bcrypt.compare(password, user.password);
   if (!isPasswordCorrect) {
     throw new IncorrectPassword();
   }
 
-  // JTI means JWT ID
-  const jti = crypto.randomUUID();
-  const sub = user.id.toString();
-
-  // If all is well, the user is logged on - send back JWT Token
-  const refreshToken = createRefreshToken(sub, jti);
-
-  // Time at the moment + 15 days
-  const refreshTokenExpiry = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
-  await storeRefreshToken(jti, user.id, refreshTokenExpiry);
-
-  const accessToken = createAccessToken(sub);
-  return { accessToken, refreshToken };
+  return startAuthSession(clientMetadata, user.id);
 }
 
-export async function refreshTokenService(refreshToken: RefreshTokenBody): Promise<TokenSet> {
-  let decoded: RefreshPayload;
-  const verified = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
-  if (isRefreshPayload(verified)) {
-    decoded = verified;
-  } else {
-    throw Error('Invalid Refresh Token Payload Shape');
+export async function refreshTokenService(
+  refreshToken: RefreshTokenBody,
+  ipAddress: string | undefined,
+) {
+  const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
+
+  if (!isRefreshPayload(payload)) {
+    throw new InvalidPayloadShape();
   }
 
   const client = await pool.connect();
   let newRefreshToken: string;
+  let newAccessToken: string;
+  let expiryInMs: number;
+  const oldRefreshTokenJti = payload.jti;
 
-  // Refresh Token Rotation Transaction
   try {
     await client.query('BEGIN');
 
-    // Retrieve matching refresh token
-    const tokenRecord = await getRefreshTokenByJti(decoded.jti, client);
-
-    // Check if refresh token is in the database
-    if (tokenRecord.rows.length < 1) {
-      throw new Error('Refresh token does not match any token in the database.');
+    const sessionId = await getSessionIdFromJti(oldRefreshTokenJti, client);
+    if (sessionId === null) {
+      throw new RefreshTokenNotFound();
     }
 
-    // Check if refresh token is revoked
-    if (tokenRecord.rows[0]!.tokenStatus === 'REVOKED') {
-      // TODO: log all user sessions, a malicious actor may be trying to get in
+    const sessionInfo = await getSessionInfo(sessionId, client);
 
-      throw new Error('Refresh token has been revoked.');
+    const matchingRefreshToken = await getRefreshTokenByJti(oldRefreshTokenJti, client);
+    if (matchingRefreshToken === null) {
+      throw new RefreshTokenNotFound();
     }
 
-    // Check if refresh token is expired
-    if (tokenRecord.rows[0]!.expiresAt < new Date()) {
-      throw new Error('Refresh Token has expired.');
+    const tokenStatus = matchingRefreshToken.tokenStatus;
+
+    if (tokenStatus === 'REVOKED') {
+      throw new RefreshTokenRevoked();
     }
 
-    // TODO: Add check for rotated tokens
+    if (tokenStatus === 'ROTATED') {
+      throw new RefreshTokenRotated();
+    }
 
-    // Update the refresh token's status to rotated
-    await rotateToken(decoded.jti, client);
+    if (matchingRefreshToken.expiresAt < new Date()) {
+      throw new RefreshTokenExpired();
+    }
 
-    // Create new refresh token
-    const jti = crypto.randomUUID();
-    newRefreshToken = createRefreshToken(decoded.sub, jti);
-    const expiresAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+    const dateNow = new Date(Date.now());
+    const sessionExpiry = sessionInfo.expiresAt;
 
-    // Store the new refresh token in database
-    await storeRefreshToken(jti, Number(decoded.sub), expiresAt, client);
+    const isSessionExpired = dateNow >= sessionExpiry;
+
+    if (isSessionExpired) {
+      throw new SessionExpired();
+    }
+
+    const isSessionActive = sessionInfo.sessionStatus === 'ACTIVE';
+
+    if (!isSessionActive) {
+      throw new SessionInvalid();
+    }
+
+    const newRefreshTokenJti = crypto.randomUUID();
+
+    const refreshTokenExpiry = new Date(Date.now() + authConfig.refreshTokenTtlSeconds * 1000);
+    const expiresAt = refreshTokenExpiry > sessionExpiry ? sessionExpiry : refreshTokenExpiry;
+
+    expiryInMs = expiresAt.getTime() - Date.now();
+    const sub = sessionInfo.userId.toString();
+
+    await rotateToken(oldRefreshTokenJti, newRefreshTokenJti, dateNow, client);
+    newRefreshToken = createRefreshToken(sub, newRefreshTokenJti, expiryInMs);
+
+    await insertNewRefreshToken(
+      newRefreshTokenJti,
+      matchingRefreshToken.sessionId,
+      expiresAt,
+      client,
+    );
+
+    await updateSessionLastActivityAndIp(sessionId, ipAddress, dateNow, client);
+
+    newAccessToken = createAccessToken(sub);
 
     await client.query('COMMIT');
   } catch (error) {
@@ -140,8 +166,5 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     client.release();
   }
 
-  // Create new access token
-  const newAccessToken = createAccessToken(decoded.sub);
-
-  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken, expiryInMs };
 }

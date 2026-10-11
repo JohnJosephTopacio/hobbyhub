@@ -36,9 +36,9 @@ export class EmailRegistered extends AppError {
   }
 }
 
-export class UsernameRegistered extends AppError {
+export class UsernameRegisteredAlready extends AppError {
   constructor() {
-    super('Username already registered', 409, 'usernameRegistered');
+    super('Username already registered already', 409, 'usernameRegisteredAlready');
   }
 }
 
@@ -86,5 +86,57 @@ export class NoTagsFound extends AppError {
 export class TagExists extends AppError {
   constructor() {
     super('Tag Exists Already', 409, 'tagExistsAlready', 'Attempting to create a tag that exists');
+  }
+}
+
+export class InvalidPayloadShape extends AppError {
+  constructor() {
+    super(
+      'Invalid Token Payload',
+      400,
+      'invalidTokenPayload',
+      'The decoded token payload shape is invalid',
+    );
+  }
+}
+
+export class RefreshTokenNotFound extends AppError {
+  constructor() {
+    super(
+      'No matching refresh token found',
+      404,
+      'noMatchingRefreshToken',
+      'No matching refresh token was found using provided JTI',
+    );
+  }
+}
+
+export class RefreshTokenRevoked extends AppError {
+  constructor() {
+    super('Refresh Token was revoked', 400, 'tokenRevoked', 'The refresh token is revoked');
+  }
+}
+
+export class RefreshTokenRotated extends AppError {
+  constructor() {
+    super('Refresh Token was rotated', 400, 'tokenRotated', 'The refresh token is rotated');
+  }
+}
+
+export class RefreshTokenExpired extends AppError {
+  constructor() {
+    super('Refresh Token was rotated', 400, 'tokenRotated', 'The refresh token is rotated');
+  }
+}
+
+export class SessionInvalid extends AppError {
+  constructor() {
+    super('Session is invalid', 400, 'sessionInvalid', 'The session is revoked');
+  }
+}
+
+export class SessionExpired extends AppError {
+  constructor() {
+    super('Session is expired', 400, 'sessionExpired', 'The session is expired');
   }
 }

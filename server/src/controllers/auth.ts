@@ -7,9 +7,8 @@ import {
   registerUserService,
 } from '../services/auth.service.js';
 import { registerUserSchema, loginUserSchema, refreshTokenSchema } from '../schemas/auth.schema.js';
-
-// Token and cookie expiry minutes
-const expiryDays = 15;
+import { parseClientMetadata } from '../services/clientMetadata.service.js';
+import { authConfig } from '../config/auth.js';
 
 const REFRESH_COOKIE_PATH = '/auth/refresh';
 
@@ -32,14 +31,16 @@ export async function registerUser(req: Request, res: Response, next: NextFuncti
 export async function loginUser(req: Request, res: Response, next: NextFunction) {
   try {
     const input = loginUserSchema.parse(req.body);
-    const tokens = await loginUserService(input);
+    const userAgent = req.headers['user-agent'];
+    const clientMetadata = parseClientMetadata(userAgent, req.ip);
+
+    const tokens = await loginUserService(input, clientMetadata);
     const { accessToken, refreshToken } = tokens;
 
     res
       .status(200)
       .cookie('token', refreshToken, {
-        // The first number is how many minutes the expression equates to
-        maxAge: expiryDays * 1000 * 60 * 60 * 24,
+        maxAge: authConfig.refreshTokenTtlSeconds * 1000,
         httpOnly: true,
         // This needs to be revisited in the deployment phase for cross-site requests
         sameSite: 'strict',
@@ -55,15 +56,17 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
   }
 }
 
-export async function refreshToken(req: Request, res: Response, next: NextFunction) {
+export async function refreshToken(req: Request, res: Response, _next: NextFunction) {
   const refreshTokenBody = refreshTokenSchema.parse(req.cookies.token);
-  const { accessToken, refreshToken } = await refreshTokenService(refreshTokenBody);
+  const { accessToken, refreshToken, expiryInMs } = await refreshTokenService(
+    refreshTokenBody,
+    req.ip,
+  );
 
   res
     .status(200)
     .cookie('token', refreshToken, {
-      // The first number is how many minutes the expression equates to
-      maxAge: expiryDays * 1000 * 60 * 60 * 24,
+      maxAge: expiryInMs,
       httpOnly: true,
       // This needs to be revisited in the deployment phase for cross-site requests
       sameSite: 'strict',

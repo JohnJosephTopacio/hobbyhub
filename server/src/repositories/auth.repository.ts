@@ -6,13 +6,42 @@ interface UserAuthRow {
   password: string;
 }
 
-type TokenStatus = 'ACTIVE' | 'ROTATED' | 'REVOKED';
+export interface RefreshTokenRow {
+  jti: string;
+  session_id: string;
+  created_at: Date;
+  expires_at: Date;
+  token_status: string;
+  replaced_by: string;
+  rotated_at: Date;
+  revoked_at: Date;
+}
 
 export interface RefreshToken {
   jti: string;
-  userId: number;
+  sessionId: string;
+  createdAt: Date;
   expiresAt: Date;
-  tokenStatus: TokenStatus;
+  tokenStatus: string;
+  replacedBy: string;
+  rotatedAt: Date;
+  revokedAt: Date;
+}
+
+export interface SessionInfoRecord {
+  session_status: string;
+  expires_at: Date;
+  user_id: number;
+}
+
+export interface SessionInfo {
+  sessionStatus: string;
+  expiresAt: Date;
+  userId: number;
+}
+
+export interface SessionIdRecord {
+  session_id: string;
 }
 
 export async function userExistsByEmail(email: string): Promise<boolean> {
@@ -65,42 +94,96 @@ export async function createUserWithProfile(
   }
 }
 
-export function getUser(email: string) {
+export function getUserByEmail(email: string) {
   return pool.query<UserAuthRow>('SELECT id, password FROM users WHERE email = $1', [email]);
 }
 
-// Postgres driver auto-converts Date object to UTC which fits TIMESTAMPTZ
-export function storeRefreshToken(
-  jti: string,
-  userId: number,
-  expiresAt: Date,
-  client?: PoolClient,
-) {
-  if (!client) {
-    return pool.query('INSERT INTO auth_sessions (jti, user_id, expires_at) VALUES ($1, $2, $3)', [
+export async function getSessionIdFromJti(jti: string, client: PoolClient) {
+  const sessionIdRecord = (
+    await client.query<SessionIdRecord>('SELECT session_id from refresh_tokens WHERE jti = $1', [
       jti,
-      userId,
-      expiresAt,
-    ]);
+    ])
+  ).rows[0];
+
+  if (sessionIdRecord === undefined) {
+    return null;
   }
 
-  return client.query('INSERT INTO auth_sessions (jti, user_id, expires_at) VALUES ($1, $2, $3)', [
-    jti,
-    userId,
-    expiresAt,
-  ]);
+  return sessionIdRecord.session_id;
 }
 
-export function getRefreshTokenByJti(jti: string, client: PoolClient) {
-  return client.query<RefreshToken>(
-    'SELECT jti, user_id, expires_at, token_status FROM auth_sessions WHERE jti = $1 FOR UPDATE',
-    [jti],
+export async function getRefreshTokenByJti(
+  jti: string,
+  client: PoolClient,
+): Promise<RefreshToken | null> {
+  const refreshTokenRecord = (
+    await client.query<RefreshTokenRow>('SELECT * FROM refresh_tokens WHERE jti = $1 FOR UPDATE', [
+      jti,
+    ])
+  ).rows[0];
+
+  if (refreshTokenRecord === undefined) {
+    return null;
+  }
+
+  return {
+    jti: refreshTokenRecord.jti,
+    sessionId: refreshTokenRecord.session_id,
+    createdAt: refreshTokenRecord.created_at,
+    expiresAt: refreshTokenRecord.expires_at,
+    tokenStatus: refreshTokenRecord.token_status,
+    replacedBy: refreshTokenRecord.replaced_by,
+    rotatedAt: refreshTokenRecord.rotated_at,
+    revokedAt: refreshTokenRecord.revoked_at,
+  };
+}
+
+export async function getSessionInfo(sessionId: string, client: PoolClient): Promise<SessionInfo> {
+  const sessionInfo = (
+    await client.query<SessionInfoRecord>(
+      'SELECT session_status, expires_at, user_id FROM auth_sessions WHERE session_id = $1 FOR UPDATE',
+      [sessionId],
+    )
+  ).rows[0];
+
+  if (sessionInfo === undefined) {
+    throw new Error('Session could not be found');
+  }
+
+  return {
+    sessionStatus: sessionInfo.session_status,
+    expiresAt: sessionInfo.expires_at,
+    userId: sessionInfo.user_id,
+  };
+}
+
+export function rotateToken(oldJti: string, newJti: string, rotatedAt: Date, client: PoolClient) {
+  return client.query(
+    'UPDATE refresh_tokens SET token_status = $1, rotated_at = $2, replaced_by = $3 WHERE jti = $4',
+    ['ROTATED', rotatedAt, newJti, oldJti],
   );
 }
 
-export function rotateToken(jti: string, client: PoolClient) {
-  return client.query('UPDATE auth_sessions SET token_status = $1 WHERE jti = $2', [
-    'ROTATED',
-    jti,
-  ]);
+export function insertNewRefreshToken(
+  jti: string,
+  sessionId: string,
+  expiresAt: Date,
+  client: PoolClient,
+) {
+  return client.query(
+    'INSERT INTO refresh_tokens (jti, session_id, expires_at) VALUES ($1, $2, $3)',
+    [jti, sessionId, expiresAt],
+  );
+}
+
+export function updateSessionLastActivityAndIp(
+  sessionId: string,
+  ipAddress: string | undefined,
+  dateNow: Date,
+  client: PoolClient,
+) {
+  return client.query(
+    'UPDATE auth_sessions SET last_activity_at = $1, last_ip = $2 WHERE session_id = $3',
+    [dateNow, ipAddress, sessionId],
+  );
 }
