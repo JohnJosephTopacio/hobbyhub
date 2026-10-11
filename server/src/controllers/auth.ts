@@ -8,6 +8,7 @@ import {
 } from '../services/auth.service.js';
 import { registerUserSchema, loginUserSchema, refreshTokenSchema } from '../schemas/auth.schema.js';
 import { parseClientMetadata } from '../services/clientMetadata.service.js';
+import { authConfig } from '../config/auth.js';
 
 // Token and cookie expiry minutes
 const expiryDays = 15;
@@ -42,7 +43,7 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
     res
       .status(200)
       .cookie('token', refreshToken, {
-        maxAge: expiryDays * 1000 * 60 * 60 * 24,
+        maxAge: authConfig.refreshTokenTtlSeconds * 1000,
         httpOnly: true,
         // This needs to be revisited in the deployment phase for cross-site requests
         sameSite: 'strict',
@@ -58,14 +59,14 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
   }
 }
 
-export async function refreshToken(req: Request, res: Response, next: NextFunction) {
+export async function refreshToken(req: Request, res: Response, _next: NextFunction) {
   const refreshTokenBody = refreshTokenSchema.parse(req.cookies.token);
   const { accessToken, refreshToken } = await refreshTokenService(refreshTokenBody);
 
   res
     .status(200)
     .cookie('token', refreshToken, {
-      maxAge: expiryDays * 1000 * 60 * 60 * 24,
+      maxAge: authConfig.refreshTokenTtlSeconds * 1000,
       httpOnly: true,
       // This needs to be revisited in the deployment phase for cross-site requests
       sameSite: 'strict',
