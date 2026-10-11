@@ -6,7 +6,7 @@ CREATE TYPE refresh_token_status AS ENUM (
 
 CREATE TYPE session_status AS ENUM (
   'ACTIVE',
-  'REVOKED' 
+  'REVOKED'
 );
 
 CREATE TYPE session_revocation_reason AS ENUM (

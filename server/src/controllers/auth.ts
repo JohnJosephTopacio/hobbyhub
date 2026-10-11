@@ -10,9 +10,6 @@ import { registerUserSchema, loginUserSchema, refreshTokenSchema } from '../sche
 import { parseClientMetadata } from '../services/clientMetadata.service.js';
 import { authConfig } from '../config/auth.js';
 
-// Token and cookie expiry minutes
-const expiryDays = 15;
-
 const REFRESH_COOKIE_PATH = '/auth/refresh';
 
 export async function registerUser(req: Request, res: Response, next: NextFunction): Promise<void> {
@@ -61,12 +58,15 @@ export async function loginUser(req: Request, res: Response, next: NextFunction)
 
 export async function refreshToken(req: Request, res: Response, _next: NextFunction) {
   const refreshTokenBody = refreshTokenSchema.parse(req.cookies.token);
-  const { accessToken, refreshToken } = await refreshTokenService(refreshTokenBody);
+  const { accessToken, refreshToken, expiryInMs } = await refreshTokenService(
+    refreshTokenBody,
+    req.ip,
+  );
 
   res
     .status(200)
     .cookie('token', refreshToken, {
-      maxAge: authConfig.refreshTokenTtlSeconds * 1000,
+      maxAge: expiryInMs,
       httpOnly: true,
       // This needs to be revisited in the deployment phase for cross-site requests
       sameSite: 'strict',

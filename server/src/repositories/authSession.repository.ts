@@ -9,7 +9,7 @@ export async function createSessionWithInitialToken(
   refreshTokenExpiry: Date,
   userId: number,
 ) {
-  const { clientName, operatingSystem, deviceType, userAgent, initialIp } = clientMetadata;
+  const { clientName, operatingSystem, deviceType, userAgent, ipAddress } = clientMetadata;
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -23,8 +23,8 @@ export async function createSessionWithInitialToken(
         operatingSystem,
         deviceType,
         userAgent,
-        initialIp,
-        initialIp,
+        ipAddress,
+        ipAddress,
       ],
     );
     await client.query(

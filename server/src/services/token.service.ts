@@ -4,7 +4,12 @@ import { authConfig } from '../config/auth.js';
 
 type UUID = `${string}-${string}-${string}-${string}-${string}`;
 
-export function createRefreshToken(userId: string, jti: UUID) {
+export function createRefreshToken(userId: string, jti: UUID, expiryInMs?: number) {
+  let expiryInSeconds;
+  if (expiryInMs !== undefined) {
+    expiryInSeconds = Math.floor(expiryInMs / 1000);
+  }
+
   return jwt.sign(
     {
       sub: userId,
@@ -12,7 +17,7 @@ export function createRefreshToken(userId: string, jti: UUID) {
     },
     env.JWT_REFRESH_SECRET,
     {
-      expiresIn: authConfig.refreshTokenTtlSeconds,
+      expiresIn: expiryInSeconds ?? authConfig.refreshTokenTtlSeconds,
     },
   );
 }

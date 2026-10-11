@@ -21,5 +21,5 @@ export interface ClientMetadata {
   clientName: string | undefined;
   operatingSystem: string | undefined;
   deviceType: string | undefined;
-  initialIp: string | undefined;
+  ipAddress: string | undefined;
 }

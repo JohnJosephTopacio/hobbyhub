@@ -99,3 +99,44 @@ export class InvalidPayloadShape extends AppError {
     );
   }
 }
+
+export class RefreshTokenNotFound extends AppError {
+  constructor() {
+    super(
+      'No matching refresh token found',
+      404,
+      'noMatchingRefreshToken',
+      'No matching refresh token was found using provided JTI',
+    );
+  }
+}
+
+export class RefreshTokenRevoked extends AppError {
+  constructor() {
+    super('Refresh Token was revoked', 400, 'tokenRevoked', 'The refresh token is revoked');
+  }
+}
+
+export class RefreshTokenRotated extends AppError {
+  constructor() {
+    super('Refresh Token was rotated', 400, 'tokenRotated', 'The refresh token is rotated');
+  }
+}
+
+export class RefreshTokenExpired extends AppError {
+  constructor() {
+    super('Refresh Token was rotated', 400, 'tokenRotated', 'The refresh token is rotated');
+  }
+}
+
+export class SessionInvalid extends AppError {
+  constructor() {
+    super('Session is invalid', 400, 'sessionInvalid', 'The session is revoked');
+  }
+}
+
+export class SessionExpired extends AppError {
+  constructor() {
+    super('Session is expired', 400, 'sessionExpired', 'The session is expired');
+  }
+}

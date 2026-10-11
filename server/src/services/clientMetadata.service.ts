@@ -12,6 +12,6 @@ export function parseClientMetadata(
     clientName: parsedUserAgent?.browser.name,
     operatingSystem: parsedUserAgent?.os.name,
     deviceType: parsedUserAgent?.device.type,
-    initialIp: ipAddress,
+    ipAddress: ipAddress,
   };
 }

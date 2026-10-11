@@ -11,6 +11,12 @@ import {
   IncorrectPassword,
   InvalidPayloadShape,
   UsernameRegisteredAlready,
+  RefreshTokenNotFound,
+  RefreshTokenRevoked,
+  RefreshTokenRotated,
+  RefreshTokenExpired,
+  SessionInvalid,
+  SessionExpired,
 } from '../errors/index.js';
 import {
   userExistsByEmail,
@@ -19,8 +25,13 @@ import {
   getRefreshTokenByJti,
   rotateToken,
   getUserByEmail,
+  insertNewRefreshToken,
+  getSessionInfo,
+  getSessionIdFromJti,
+  updateSessionLastActivityAndIp,
 } from '../repositories/auth.repository.js';
 import { startAuthSession } from './authSession.service.js';
+import { authConfig } from '../config/auth.js';
 
 interface TokenSet {
   accessToken: string;
@@ -65,7 +76,10 @@ export async function loginUserService(
   return startAuthSession(clientMetadata, user.id);
 }
 
-export async function refreshTokenService(refreshToken: RefreshTokenBody): Promise<TokenSet> {
+export async function refreshTokenService(
+  refreshToken: RefreshTokenBody,
+  ipAddress: string | undefined,
+) {
   const payload = jwt.verify(refreshToken, env.JWT_REFRESH_SECRET);
 
   if (!isRefreshPayload(payload)) {
@@ -74,48 +88,75 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
 
   const client = await pool.connect();
   let newRefreshToken: string;
+  let newAccessToken: string;
+  let expiryInMs: number;
+  const oldRefreshTokenJti = payload.jti;
 
-  // Refresh Token Rotation Transaction
   try {
     await client.query('BEGIN');
 
-    // Retrieve matching refresh token
-    const tokenRecord = await getRefreshTokenByJti(payload.jti, client);
-
-    // Check if refresh token is in the database
-    if (tokenRecord.rows.length < 1) {
-      throw new Error('Refresh token does not match any token in the database.');
+    const sessionId = await getSessionIdFromJti(oldRefreshTokenJti, client);
+    if (sessionId === null) {
+      throw new RefreshTokenNotFound();
     }
 
-    const tokenStatus = tokenRecord.rows[0]!.tokenStatus;
+    const sessionInfo = await getSessionInfo(sessionId, client);
 
-    // Check if refresh token is revoked
+    const matchingRefreshToken = await getRefreshTokenByJti(oldRefreshTokenJti, client);
+    if (matchingRefreshToken === null) {
+      throw new RefreshTokenNotFound();
+    }
+
+    const tokenStatus = matchingRefreshToken.tokenStatus;
+
     if (tokenStatus === 'REVOKED') {
-      // TODO: log all user sessions, a malicious actor may be trying to get in
-
-      throw new Error('Refresh token has been revoked.');
+      throw new RefreshTokenRevoked();
     }
 
-    // TODO: Add check for rotated tokens
     if (tokenStatus === 'ROTATED') {
-      throw new Error('Refresh Token has been rotated.');
+      throw new RefreshTokenRotated();
     }
 
-    // Check if refresh token is expired
-    if (tokenRecord.rows[0]!.expiresAt < new Date()) {
-      throw new Error('Refresh Token has expired.');
+    if (matchingRefreshToken.expiresAt < new Date()) {
+      throw new RefreshTokenExpired();
     }
 
-    // Update the refresh token's status to rotated
-    await rotateToken(payload.jti, client);
+    const dateNow = new Date(Date.now());
+    const sessionExpiry = sessionInfo.expiresAt;
 
-    // Create new refresh token
-    const jti = crypto.randomUUID();
-    newRefreshToken = createRefreshToken(payload.sub, jti);
-    const expiresAt = new Date(Date.now() + 15 * 24 * 60 * 60 * 1000);
+    const isSessionExpired = dateNow >= sessionExpiry;
 
-    // Store the new refresh token in database
-    //await storeRefreshToken(jti, Number(payload.sub), expiresAt, client);
+    if (isSessionExpired) {
+      throw new SessionExpired();
+    }
+
+    const isSessionActive = sessionInfo.sessionStatus === 'ACTIVE';
+
+    if (!isSessionActive) {
+      throw new SessionInvalid();
+    }
+
+    const newRefreshTokenJti = crypto.randomUUID();
+
+    const refreshTokenExpiry = new Date(Date.now() + authConfig.refreshTokenTtlSeconds * 1000);
+    const expiresAt = refreshTokenExpiry > sessionExpiry ? sessionExpiry : refreshTokenExpiry;
+
+    expiryInMs = expiresAt.getTime() - Date.now();
+    const sub = sessionInfo.userId.toString();
+
+    await rotateToken(oldRefreshTokenJti, newRefreshTokenJti, dateNow, client);
+    newRefreshToken = createRefreshToken(sub, newRefreshTokenJti, expiryInMs);
+
+    await insertNewRefreshToken(
+      newRefreshTokenJti,
+      matchingRefreshToken.sessionId,
+      expiresAt,
+      client,
+    );
+
+    await updateSessionLastActivityAndIp(sessionId, ipAddress, dateNow, client);
+
+    newAccessToken = createAccessToken(sub);
 
     await client.query('COMMIT');
   } catch (error) {
@@ -125,8 +166,5 @@ export async function refreshTokenService(refreshToken: RefreshTokenBody): Promi
     client.release();
   }
 
-  // Create new access token
-  const newAccessToken = createAccessToken(payload.sub);
-
-  return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+  return { accessToken: newAccessToken, refreshToken: newRefreshToken, expiryInMs };
 }
